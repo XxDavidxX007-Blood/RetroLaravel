@@ -14,6 +14,7 @@ class Inventario extends Model
         'cantidad',
         'stock_minimo',
         'stock_maximo',
+        'unidad',
     ];
 
     public function producto()

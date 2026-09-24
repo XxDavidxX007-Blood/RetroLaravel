@@ -1,395 +1,500 @@
 @extends('layouts.admin')
 
-@section('title', 'Gestión de Inventario | Administrador')
+@section('title', 'Gestión de Inventarios | Administrador')
 
-@section('header')
-    <div class="flex items-center gap-3">
-        <a href="{{ route('dashboard') }}" class="w-7 h-7 rounded-full bg-retro-gold/20 text-retro-gold flex items-center justify-center hover:bg-retro-gold hover:text-black transition">
-            <i class="fas fa-chevron-left text-xs"></i>
-        </a>
-        <span class="text-gray-400">|</span>
-        <span>GESTIÓN DE INVENTARIO</span>
-    </div>
-@endsection
+@section('header', 'GESTIÓN DE INVENTARIOS')
 
 @section('content')
 
-<div class="max-w-7xl mx-auto space-y-8">
+<div class="max-w-7xl mx-auto space-y-6">
 
-    <!-- ALERTAS -->
-    @if(session('success'))
-        <div class="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-circle-check text-emerald-600 text-lg"></i>
-                <p class="text-sm font-medium text-emerald-800">{{ session('success') }}</p>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-emerald-500 hover:text-emerald-700">
-                <i class="fas fa-xmark"></i>
-            </button>
-        </div>
-    @endif
+    {{-- ============================================= --}}
+    {{-- ENCABEZADO + ACCIONES --}}
+    {{-- ============================================= --}}
 
-    @if(session('error'))
-        <div class="bg-rose-50 border-l-4 border-rose-500 p-4 rounded-r-xl flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-circle-exclamation text-rose-600 text-lg"></i>
-                <p class="text-sm font-medium text-rose-800">{{ session('error') }}</p>
-            </div>
-            <button onclick="this.parentElement.remove()" class="text-rose-500 hover:text-rose-700">
-                <i class="fas fa-xmark"></i>
-            </button>
-        </div>
-    @endif
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 
-    @if(isset($errors) && $errors->any())
-        <div class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl space-y-1 shadow-sm">
-            <div class="flex items-center gap-2 text-amber-800 font-semibold text-sm">
-                <i class="fas fa-triangle-exclamation"></i>
-                <span>Por favor verifica los siguientes errores:</span>
-            </div>
-            <ul class="list-disc list-inside text-xs text-amber-700 pl-4 space-y-0.5">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
-
-    <!-- ================================================= -->
-    <!-- METRICAS SUPERIORES -->
-    <!-- ================================================= -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-
-        <!-- Total Productos -->
-        <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Productos</p>
-                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1 font-heading">{{ $totalProductos }}</h3>
-                </div>
-                <div class="w-11 h-11 rounded-xl bg-gray-100 flex items-center justify-center text-gray-800 text-lg">
-                    <i class="fas fa-box-open"></i>
-                </div>
-            </div>
+        <div>
+            <h2 class="font-heading text-3xl font-bold text-gray-900 tracking-tight">
+                Gestión de Inventarios
+            </h2>
+            <p class="text-sm text-gray-500 mt-1">
+                Administra y controla todos los insumos de tu restaurante
+            </p>
         </div>
 
-        <!-- Valor en Stock -->
-        <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Valor Stock</p>
-                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1 font-heading">${{ number_format($valorStock, 0, ',', '.') }}</h3>
-                </div>
-                <div class="w-11 h-11 rounded-xl bg-[#fef3c7] flex items-center justify-center text-[#d97706] text-lg font-bold">
-                    <i class="fas fa-dollar-sign"></i>
-                </div>
+        <div class="flex items-center gap-3">
+
+            {{-- EXPORTAR --}}
+            <a
+                href="#"
+                onclick="exportarCSV(); return false;"
+                class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-300 bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition shadow-sm"
+            >
+                <i class="fas fa-download text-xs"></i>
+                Exportar
+            </a>
+
+            {{-- NUEVO PRODUCTO --}}
+            <a
+                href="{{ route('admin.menu.index') }}"
+                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition shadow-sm"
+            >
+                <i class="fas fa-plus text-xs"></i>
+                Nuevo Producto
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {{-- ============================================= --}}
+    {{-- TARJETAS DE METRICAS --}}
+    {{-- ============================================= --}}
+
+    <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
+
+        {{-- TOTAL PRODUCTOS --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition">
+            <div class="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-boxes-stacked text-emerald-500 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 leading-tight">Total de<br>Productos</p>
+                <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ $totalProductos }}</p>
+                <p class="text-[10px] text-gray-400">insumos registrados</p>
             </div>
         </div>
 
-        <!-- Stock Bajo -->
-        <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Bajo</p>
-                    <h3 class="text-2xl font-extrabold text-amber-600 mt-1 font-heading">{{ $stockBajo }}</h3>
-                </div>
-                <div class="w-11 h-11 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 text-lg">
-                    <i class="fas fa-triangle-exclamation"></i>
-                </div>
+        {{-- VALOR INVENTARIO --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition">
+            <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-clipboard-list text-blue-400 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 leading-tight">Valor Inventario</p>
+                <p class="text-2xl font-bold text-gray-900 mt-0.5">${{ number_format($valorStock, 0, ',', '.') }}</p>
+                <p class="text-[10px] text-gray-400">Valor total</p>
             </div>
         </div>
 
-        <!-- Sin Stock -->
-        <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Sin Stock</p>
-                    <h3 class="text-2xl font-extrabold text-rose-600 mt-1 font-heading">{{ $sinStock }}</h3>
-                </div>
-                <div class="w-11 h-11 rounded-xl bg-rose-100 flex items-center justify-center text-rose-600 text-lg">
-                    <i class="fas fa-ban"></i>
-                </div>
+        {{-- STOCK BAJO --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition">
+            <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-triangle-exclamation text-amber-400 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 leading-tight">Stock Bajo</p>
+                <p class="text-2xl font-bold text-amber-500 mt-0.5">{{ $stockBajo }}</p>
+                <p class="text-[10px] text-gray-400">Productos bajos</p>
             </div>
         </div>
 
-        <!-- Operaciones Mes -->
-        <div class="bg-white border-2 border-black rounded-2xl p-5 shadow-sm hover:shadow-md transition">
-            <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-xs font-medium text-gray-500 uppercase tracking-wider">Movimientos Mes</p>
-                    <h3 class="text-2xl font-extrabold text-blue-600 mt-1 font-heading">{{ $operacionesMes }}</h3>
-                </div>
-                <div class="w-11 h-11 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-lg">
-                    <i class="fas fa-arrow-right-arrow-left"></i>
-                </div>
+        {{-- SIN STOCK --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition">
+            <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-circle-xmark text-red-400 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 leading-tight">Sin Stock</p>
+                <p class="text-2xl font-bold text-red-500 mt-0.5">{{ $sinStock }}</p>
+                <p class="text-[10px] text-gray-400">Agotados</p>
+            </div>
+        </div>
+
+        {{-- MOVIMIENTOS --}}
+        <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 flex items-center gap-4 hover:shadow-md transition">
+            <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center shrink-0">
+                <i class="fas fa-arrow-right-arrow-left text-purple-400 text-lg"></i>
+            </div>
+            <div>
+                <p class="text-xs text-gray-400 leading-tight">Movimientos</p>
+                <p class="text-2xl font-bold text-gray-900 mt-0.5">{{ $operacionesMes }}</p>
+                <p class="text-[10px] text-gray-400">Este mes</p>
             </div>
         </div>
 
     </div>
 
 
-    <!-- ================================================= -->
-    <!-- TABLA PRINCIPAL DE INVENTARIO -->
-    <!-- ================================================= -->
-    <div class="bg-white border-2 border-black rounded-3xl p-7 shadow-xl space-y-6">
+    {{-- ============================================= --}}
+    {{-- FILTROS --}}
+    {{-- ============================================= --}}
 
-        <!-- CABECERA -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div class="flex items-center gap-3">
-                <i class="fas fa-boxes-stacked text-2xl text-black"></i>
-                <h2 class="font-heading text-2xl font-bold tracking-tight text-gray-900 uppercase">
-                    INVENTARIO DE PRODUCTOS
-                </h2>
-            </div>
+    <form method="GET" action="{{ route('admin.inventario.index') }}" id="filtrosForm">
+        <div class="flex flex-col sm:flex-row gap-3 items-center">
 
-            <div class="flex items-center gap-3">
-                <a 
-                    href="{{ route('admin.inventario.sugerencias') }}"
-                    class="bg-[#fef3c7] text-[#92400e] hover:bg-[#fde68a] font-semibold px-4 py-2 rounded-full flex items-center gap-2 border border-[#f59e0b] transition text-xs uppercase tracking-wider"
+            {{-- BUSCADOR --}}
+            <div class="relative flex-1">
+                <i class="fas fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input
+                    type="text"
+                    name="search"
+                    id="searchInput"
+                    value="{{ request('search') }}"
+                    placeholder="Buscar ingrediente o producto..."
+                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition"
                 >
-                    <i class="fas fa-lightbulb text-[#d97706]"></i>
-                    <span>Sugerencias de Reposición</span>
-                    @if($stockBajo + $sinStock > 0)
-                        <span class="bg-[#d97706] text-white rounded-full px-1.5 py-0.2 text-[10px]">{{ $stockBajo + $sinStock }}</span>
-                    @endif
-                </a>
             </div>
+
+            {{-- CATEGORIAS --}}
+            <select
+                name="categoria_id"
+                onchange="this.form.submit()"
+                class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition cursor-pointer"
+            >
+                <option value="">Todas las categorias</option>
+                @foreach($categorias as $cat)
+                    <option value="{{ $cat->id }}" {{ request('categoria_id') == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->nombre }}
+                    </option>
+                @endforeach
+            </select>
+
+            {{-- ESTADO --}}
+            <select
+                name="filtro_stock"
+                onchange="this.form.submit()"
+                class="px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition cursor-pointer"
+            >
+                <option value="">Todos los estados</option>
+                <option value="con_stock"  {{ request('filtro_stock') === 'con_stock'  ? 'selected' : '' }}>Con Stock</option>
+                <option value="stock_bajo" {{ request('filtro_stock') === 'stock_bajo' ? 'selected' : '' }}>Stock Bajo</option>
+                <option value="sin_stock"  {{ request('filtro_stock') === 'sin_stock'  ? 'selected' : '' }}>Sin Stock</option>
+            </select>
+
+            {{-- LIMPIAR --}}
+            @if(request()->hasAny(['search', 'categoria_id', 'filtro_stock']))
+                <a
+                    href="{{ route('admin.inventario.index') }}"
+                    class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-600 hover:bg-gray-50 transition whitespace-nowrap"
+                >
+                    <i class="fas fa-filter-circle-xmark text-gray-400"></i>
+                    Limpiar Filtros
+                </a>
+            @else
+                <span class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-sm text-gray-400 whitespace-nowrap cursor-default">
+                    <i class="fas fa-filter text-gray-300"></i>
+                    Limpiar Filtros
+                </span>
+            @endif
+
         </div>
+    </form>
 
-        <!-- FILTROS Y BUSCADOR -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 pt-2">
-            <form method="GET" action="{{ route('admin.inventario.index') }}" class="w-full flex flex-col md:flex-row items-center gap-3">
-                <div class="relative w-full md:w-80">
-                    <i class="fas fa-search absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                    <input 
-                        type="text" 
-                        name="search" 
-                        value="{{ request('search') }}"
-                        placeholder="Buscar por producto o categoría..." 
-                        class="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:outline-none focus:ring-2 focus:ring-black"
-                    >
-                </div>
 
-                <select name="categoria_id" onchange="this.form.submit()" class="w-full md:w-48 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                    <option value="">Todas las Categorías</option>
-                    @foreach($categorias as $cat)
-                        <option value="{{ $cat->id }}" {{ request('categoria_id') == $cat->id ? 'selected' : '' }}>
-                            {{ $cat->nombre }}
-                        </option>
-                    @endforeach
-                </select>
+    {{-- ============================================= --}}
+    {{-- TABLA --}}
+    {{-- ============================================= --}}
 
-                <select name="filtro_stock" onchange="this.form.submit()" class="w-full md:w-48 px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                    <option value="">Todos los Estados</option>
-                    <option value="con_stock" {{ request('filtro_stock') == 'con_stock' ? 'selected' : '' }}>Con Stock Normal</option>
-                    <option value="stock_bajo" {{ request('filtro_stock') == 'stock_bajo' ? 'selected' : '' }}>Stock Bajo</option>
-                    <option value="sin_stock" {{ request('filtro_stock') == 'sin_stock' ? 'selected' : '' }}>Sin Stock</option>
-                </select>
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
 
-                @if(request()->hasAny(['search', 'categoria_id', 'filtro_stock']))
-                    <a href="{{ route('admin.inventario.index') }}" class="px-4 py-2 text-xs font-semibold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-xl transition">
-                        Limpiar
-                    </a>
-                @endif
-            </form>
-        </div>
+        {{-- MENSAJES --}}
+        @if(session('success'))
+            <div class="mx-6 mt-5 px-4 py-3 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center gap-2">
+                <i class="fas fa-circle-check"></i>
+                {{ session('success') }}
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="mx-6 mt-5 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm flex items-center gap-2">
+                <i class="fas fa-circle-exclamation"></i>
+                {{ session('error') }}
+            </div>
+        @endif
 
-        <!-- TABLA -->
-        <div class="overflow-x-auto rounded-2xl border border-gray-200 shadow-sm">
-            <table class="w-full text-left border-collapse">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+
+                {{-- CABECERA --}}
                 <thead>
-                    <tr class="bg-[#0a0a0a] text-retro-gold font-heading text-sm uppercase tracking-wider">
-                        <th class="py-4 px-6 font-semibold">Producto</th>
-                        <th class="py-4 px-6 font-semibold">Categoría</th>
-                        <th class="py-4 px-6 font-semibold">Precio Unit.</th>
-                        <th class="py-4 px-6 font-semibold">Stock Actual</th>
-                        <th class="py-4 px-6 font-semibold">Límites (Mín/Máx)</th>
-                        <th class="py-4 px-6 font-semibold">Estado</th>
-                        <th class="py-4 px-6 font-semibold text-center">Acciones</th>
+                    <tr class="border-b border-gray-100">
+                        <th class="text-left px-6 py-4 font-semibold text-gray-700">Producto</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Categoria</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Unidad</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Stock Actual</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Stock Minimo</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Estado</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Valor Unitario</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Valor Total</th>
+                        <th class="text-left px-4 py-4 font-semibold text-gray-700">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 bg-white text-sm">
+
+                <tbody class="divide-y divide-gray-50">
                     @forelse($productos as $producto)
+
                         @php
-                            $cant = $producto->inventario->cantidad ?? 0;
-                            $min = $producto->inventario->stock_minimo ?? 0;
-                            $max = $producto->inventario->stock_maximo ?? null;
+                            $inv      = $producto->inventario;
+                            $cantidad = $inv->cantidad     ?? 0;
+                            $minimo   = $inv->stock_minimo ?? 0;
+                            $unidad   = $inv->unidad       ?? '--';
+                            $precio   = $producto->precio  ?? 0;
+                            $total    = $cantidad * $precio;
+
+                            if ($cantidad == 0) {
+                                $estadoLabel = 'Sin stock';
+                                $estadoClass = 'bg-red-100 text-red-600';
+                                $stockColor  = 'text-red-500 font-bold';
+                            } elseif ($cantidad <= $minimo) {
+                                $estadoLabel = 'Stock bajo';
+                                $estadoClass = 'bg-amber-100 text-amber-600';
+                                $stockColor  = 'text-amber-500 font-bold';
+                            } else {
+                                $estadoLabel = 'Con stock';
+                                $estadoClass = 'bg-green-100 text-green-600';
+                                $stockColor  = 'text-gray-700 font-semibold';
+                            }
                         @endphp
-                        <tr class="hover:bg-gray-50/80 transition">
-                            <!-- Producto -->
-                            <td class="py-4 px-6">
+
+                        <tr class="hover:bg-gray-50/60 transition" id="fila-{{ $producto->id }}">
+
+                            {{-- PRODUCTO --}}
+                            <td class="px-6 py-4">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-600 shrink-0 font-bold">
-                                        <i class="fas fa-utensils text-sm"></i>
+                                    <div class="w-9 h-9 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 text-gray-400 overflow-hidden">
+                                        @if($producto->imagen)
+                                            <img src="{{ asset('storage/' . $producto->imagen) }}" alt="{{ $producto->nombre }}" class="w-full h-full object-cover">
+                                        @else
+                                            <i class="fas fa-utensils text-xs"></i>
+                                        @endif
                                     </div>
                                     <div>
-                                        <span class="font-medium text-gray-900 block">
-                                            {{ $producto->nombre }}
-                                        </span>
-                                        <span class="text-xs text-gray-400">ID: #{{ $producto->id }}</span>
+                                        <p class="font-semibold text-gray-800 leading-tight">{{ $producto->nombre }}</p>
+                                        <p class="text-gray-400" style="font-size:10px">ID: ING-{{ str_pad($producto->id, 3, '0', STR_PAD_LEFT) }}</p>
                                     </div>
                                 </div>
                             </td>
 
-                            <!-- Categoría -->
-                            <td class="py-4 px-6 text-gray-600">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                    {{ $producto->categoria->nombre ?? 'Sin categoría' }}
+                            {{-- CATEGORIA --}}
+                            <td class="px-4 py-4 text-gray-600">
+                                {{ $producto->categoria->nombre ?? '--' }}
+                            </td>
+
+                            {{-- UNIDAD --}}
+                            <td class="px-4 py-4 text-gray-600">{{ $unidad }}</td>
+
+                            {{-- STOCK ACTUAL --}}
+                            <td class="px-4 py-4">
+                                <span class="{{ $stockColor }}">{{ $cantidad }}</span>
+                            </td>
+
+                            {{-- STOCK MINIMO --}}
+                            <td class="px-4 py-4 text-gray-600">{{ $minimo }}</td>
+
+                            {{-- ESTADO --}}
+                            <td class="px-4 py-4">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold {{ $estadoClass }}">
+                                    {{ $estadoLabel }}
                                 </span>
                             </td>
 
-                            <!-- Precio -->
-                            <td class="py-4 px-6 font-semibold text-gray-900">
-                                ${{ number_format($producto->precio, 0, ',', '.') }}
+                            {{-- VALOR UNITARIO --}}
+                            <td class="px-4 py-4 text-gray-700">
+                                ${{ number_format($precio, 0, ',', '.') }}
                             </td>
 
-                            <!-- Stock Actual -->
-                            <td class="py-4 px-6">
-                                <span class="text-base font-extrabold {{ $cant == 0 ? 'text-rose-600' : ($cant <= $min ? 'text-amber-600' : 'text-emerald-600') }}">
-                                    {{ $cant }}
-                                </span>
-                                <span class="text-xs text-gray-400">uds</span>
+                            {{-- VALOR TOTAL --}}
+                            <td class="px-4 py-4 text-gray-700 font-medium">
+                                ${{ number_format($total, 0, ',', '.') }}
                             </td>
 
-                            <!-- Límites -->
-                            <td class="py-4 px-6 text-gray-500 text-xs">
-                                <span>Mín: <strong>{{ $min }}</strong></span>
-                                @if($max)
-                                    <span class="text-gray-300 mx-1">|</span>
-                                    <span>Máx: <strong>{{ $max }}</strong></span>
-                                @endif
-                            </td>
-
-                            <!-- Estado -->
-                            <td class="py-4 px-6">
-                                @if($cant == 0)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-100 text-rose-700">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                        Agotado
-                                    </span>
-                                @elseif($cant <= $min)
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                        Stock Bajo
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-700">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                        Disponible
-                                    </span>
-                                @endif
-                            </td>
-
-                            <!-- Acciones -->
-                            <td class="py-4 px-6">
-                                <div class="flex items-center justify-center gap-2">
-                                    <!-- Ajustar Stock -->
-                                    <button 
+                            {{-- ACCIONES --}}
+                            <td class="px-4 py-4">
+                                <div class="relative inline-block">
+                                    <button
                                         type="button"
-                                        onclick="openStockModal({{ $producto->id }}, '{{ addslashes($producto->nombre) }}', {{ $cant }})"
-                                        class="px-3 py-1.5 rounded-xl bg-[#0a0a0a] text-white hover:bg-black hover:text-retro-gold flex items-center gap-1.5 text-xs font-semibold transition shadow-sm"
-                                        title="Ajustar Stock"
+                                        class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
+                                        onclick="toggleMenu({{ $producto->id }})"
                                     >
-                                        <i class="fas fa-plus-minus text-[10px]"></i>
-                                        <span>Ajustar</span>
+                                        <i class="fas fa-ellipsis-vertical"></i>
                                     </button>
 
-                                    <!-- Ver Historial -->
-                                    <button 
-                                        type="button"
-                                        onclick="openHistorialModal({{ $producto->id }}, '{{ addslashes($producto->nombre) }}')"
-                                        class="w-8 h-8 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center transition shadow-sm"
-                                        title="Historial de movimientos"
+                                    <div
+                                        id="menu-{{ $producto->id }}"
+                                        class="hidden absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-30 py-1.5 text-sm"
                                     >
-                                        <i class="fas fa-clock-rotate-left text-xs"></i>
-                                    </button>
+                                        <button
+                                            type="button"
+                                            onclick="abrirModalStock({{ $producto->id }}, '{{ addslashes($producto->nombre) }}', {{ $cantidad }}, '{{ addslashes($unidad) }}')"
+                                            class="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 flex items-center gap-2.5"
+                                        >
+                                            <i class="fas fa-arrow-right-arrow-left text-blue-400 w-4"></i>
+                                            Actualizar Stock
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onclick="verHistorial({{ $producto->id }}, '{{ addslashes($producto->nombre) }}')"
+                                            class="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 flex items-center gap-2.5"
+                                        >
+                                            <i class="fas fa-clock-rotate-left text-purple-400 w-4"></i>
+                                            Ver Historial
+                                        </button>
+                                        <hr class="my-1 border-gray-100">
+                                        <button
+                                            type="button"
+                                            onclick="abrirModalEditar(
+                                                {{ $producto->id }},
+                                                '{{ addslashes($producto->nombre) }}',
+                                                {{ $producto->categoria_producto_id ?? 'null' }},
+                                                {{ $precio }},
+                                                '{{ addslashes($unidad) }}',
+                                                {{ $cantidad }},
+                                                {{ $minimo }}
+                                            )"
+                                            class="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 flex items-center gap-2.5"
+                                        >
+                                            <i class="fas fa-pen text-amber-400 w-4"></i>
+                                            Editar Producto
+                                        </button>
+                                    </div>
                                 </div>
                             </td>
+
                         </tr>
+
                     @empty
                         <tr>
-                            <td colspan="7" class="py-8 text-center text-gray-500">
-                                <i class="fas fa-box-open text-3xl mb-2 text-gray-300 block"></i>
-                                No se encontraron productos en el inventario.
+                            <td colspan="9" class="px-6 py-16 text-center">
+                                <div class="flex flex-col items-center gap-3 text-gray-400">
+                                    <i class="fas fa-boxes-stacked text-4xl text-gray-200"></i>
+                                    <p class="text-sm font-medium">No se encontraron productos</p>
+                                    <p class="text-xs">Intenta ajustar los filtros o agrega un nuevo producto</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
+
             </table>
         </div>
 
-        <!-- PAGINACIÓN -->
-        @if($productos->hasPages())
-            <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p class="text-xs text-gray-500 font-medium">
-                    Mostrando <span class="font-bold text-gray-900">{{ $productos->firstItem() }}</span> a <span class="font-bold text-gray-900">{{ $productos->lastItem() }}</span> de <span class="font-bold text-gray-900">{{ $productos->total() }}</span> productos
-                </p>
-                <div class="pagination-custom">
+        {{-- FOOTER: contador + paginacion --}}
+        <div class="px-6 py-4 border-t border-gray-50 flex items-center justify-between">
+            <p class="text-xs text-gray-400">
+                Mostrando {{ $productos->count() }} producto{{ $productos->count() !== 1 ? 's' : '' }}
+                @if($productos->total() !== $productos->count())
+                    de {{ $productos->total() }}
+                @endif
+            </p>
+            @if($productos->hasPages())
+                <div>
                     {{ $productos->links() }}
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
 
+    </div>
+
+
+    {{-- ============================================= --}}
+    {{-- BANNER CONSEJO --}}
+    {{-- ============================================= --}}
+
+    <div class="bg-green-50 border border-green-100 rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
+                <i class="fas fa-lightbulb text-green-500 text-sm"></i>
+            </div>
+            <div>
+                <p class="text-sm font-semibold text-gray-800">Consejo</p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                    Manten tu <a href="{{ route('admin.inventario.sugerencias') }}" class="text-green-600 font-medium hover:underline">inventario actualizado</a> para evitar faltantes y optimizar costos.
+                </p>
+            </div>
+        </div>
+        <a
+            href="{{ route('admin.inventario.sugerencias') }}"
+            class="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-gray-200 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition shadow-sm whitespace-nowrap"
+        >
+            Ver Reportes de Inventario
+        </a>
     </div>
 
 </div>
 
 
-<!-- ================================================= -->
-<!-- MODAL: AJUSTAR STOCK -->
-<!-- ================================================= -->
-<div id="stockModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-md w-full p-7 shadow-2xl space-y-6 relative animate-fade-in">
-        
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-black text-retro-gold flex items-center justify-center">
-                    <i class="fas fa-boxes-packing text-sm"></i>
-                </div>
-                <div>
-                    <h3 class="font-heading text-lg font-bold uppercase tracking-wider text-gray-900">Ajustar Stock</h3>
-                    <p id="modal_producto_nombre" class="text-xs text-gray-500 font-medium"></p>
-                </div>
+{{-- ============================================================ --}}
+{{-- MODAL: ACTUALIZAR STOCK --}}
+{{-- ============================================================ --}}
+
+<div id="modalStock" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+
+        <div class="px-7 py-6 border-b border-gray-100 flex items-center justify-between">
+            <div>
+                <h3 class="font-heading text-xl font-bold text-gray-900">Actualizar Stock</h3>
+                <p id="modalStockNombre" class="text-sm text-gray-400 mt-0.5"></p>
             </div>
-            <button onclick="closeStockModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
+            <button type="button" onclick="cerrarModal('modalStock')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition">
+                <i class="fas fa-xmark text-sm"></i>
             </button>
         </div>
 
-        <form id="stockForm" method="POST" class="space-y-4">
+        <form id="formStock" method="POST">
             @csrf
+            <div class="px-7 py-6 space-y-5">
 
-            <div>
-                <label class="text-xs font-semibold uppercase text-gray-600 block mb-1">Tipo de Movimiento</label>
-                <div class="grid grid-cols-2 gap-3">
-                    <label class="flex items-center justify-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-emerald-500 has-[:checked]:border-emerald-500 has-[:checked]:bg-emerald-50 transition">
-                        <input type="radio" name="tipo" value="entrada" checked class="accent-emerald-600">
-                        <span class="text-xs font-bold text-emerald-700 uppercase"><i class="fas fa-arrow-down mr-1"></i> Entrada</span>
-                    </label>
-                    <label class="flex items-center justify-center gap-2 p-3 border-2 border-gray-200 rounded-xl cursor-pointer hover:border-rose-500 has-[:checked]:border-rose-500 has-[:checked]:bg-rose-50 transition">
-                        <input type="radio" name="tipo" value="salida" class="accent-rose-600">
-                        <span class="text-xs font-bold text-rose-700 uppercase"><i class="fas fa-arrow-up mr-1"></i> Salida</span>
-                    </label>
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                    <span class="text-sm text-gray-500">Stock actual</span>
+                    <span id="stockActualLabel" class="text-lg font-bold text-gray-800">--</span>
                 </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Tipo de movimiento</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-green-400 transition">
+                            <input type="radio" name="tipo" value="entrada" class="accent-green-500" required>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700">Entrada</p>
+                                <p class="text-xs text-gray-400">Agregar stock</p>
+                            </div>
+                        </label>
+                        <label class="flex items-center gap-2.5 p-3 rounded-xl border-2 border-gray-200 cursor-pointer hover:border-red-400 transition">
+                            <input type="radio" name="tipo" value="salida" class="accent-red-500" required>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-700">Salida</p>
+                                <p class="text-xs text-gray-400">Descontar stock</p>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Cantidad <span id="unidadLabel" class="text-gray-400 font-normal text-xs"></span>
+                    </label>
+                    <input
+                        type="number"
+                        name="cantidad"
+                        min="1"
+                        required
+                        placeholder="Ej: 10"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                    >
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                        Motivo <span class="text-gray-400 font-normal">(opcional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        name="motivo"
+                        placeholder="Ej: Compra semanal"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                    >
+                </div>
+
             </div>
 
-            <div class="space-y-1">
-                <label class="text-xs font-semibold uppercase text-gray-600">Cantidad</label>
-                <input type="number" name="cantidad" min="1" required placeholder="Ej. 10" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                <p class="text-[11px] text-gray-400">Stock actual: <span id="modal_stock_actual" class="font-bold text-gray-700">0</span> unidades</p>
-            </div>
-
-            <div class="space-y-1">
-                <label class="text-xs font-semibold uppercase text-gray-600">Motivo / Observación (Opcional)</label>
-                <input type="text" name="motivo" placeholder="Ej. Compra a proveedor, Merma, Ajuste manual" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-            </div>
-
-            <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                <button type="button" onclick="closeStockModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition">
+            <div class="px-7 py-5 border-t border-gray-100 flex gap-3">
+                <button type="button" onclick="cerrarModal('modalStock')" class="flex-1 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#0a0a0a] text-white hover:bg-black border border-black hover:border-retro-gold transition shadow">
-                    Guardar Ajuste
+                <button type="submit" class="flex-1 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition">
+                    Registrar Movimiento
                 </button>
             </div>
         </form>
@@ -397,120 +502,335 @@
 </div>
 
 
-<!-- ================================================= -->
-<!-- MODAL: HISTORIAL DE MOVIMIENTOS -->
-<!-- ================================================= -->
-<div id="historialModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-2xl w-full p-7 shadow-2xl space-y-6 relative animate-fade-in">
-        
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-black text-retro-gold flex items-center justify-center">
-                    <i class="fas fa-clock-rotate-left text-sm"></i>
-                </div>
-                <div>
-                    <h3 class="font-heading text-lg font-bold uppercase tracking-wider text-gray-900">Historial de Movimientos</h3>
-                    <p id="historial_producto_nombre" class="text-xs text-gray-500 font-medium"></p>
-                </div>
+{{-- ============================================================ --}}
+{{-- MODAL: HISTORIAL --}}
+{{-- ============================================================ --}}
+
+<div id="modalHistorial" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+
+        <div class="px-7 py-6 border-b border-gray-100 flex items-center justify-between">
+            <div>
+                <h3 class="font-heading text-xl font-bold text-gray-900">Historial de Movimientos</h3>
+                <p id="modalHistorialNombre" class="text-sm text-gray-400 mt-0.5"></p>
             </div>
-            <button onclick="closeHistorialModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
+            <button type="button" onclick="cerrarModal('modalHistorial')" class="w-8 h-8 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition">
+                <i class="fas fa-xmark text-sm"></i>
             </button>
         </div>
 
-        <div id="historialContenido" class="max-h-80 overflow-y-auto space-y-3 pr-2">
-            <div class="text-center py-8 text-gray-400">
-                <i class="fas fa-spinner fa-spin text-2xl"></i>
-                <p class="text-xs mt-2">Cargando movimientos...</p>
+        <div id="historialBody" class="px-7 py-5 max-h-96 overflow-y-auto space-y-3">
+            <div class="text-center py-10 text-gray-400">
+                <i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i>
+                <p class="text-sm">Cargando historial...</p>
             </div>
         </div>
 
-        <div class="pt-4 flex justify-end border-t border-gray-100">
-            <button type="button" onclick="closeHistorialModal()" class="px-5 py-2 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
+        <div class="px-7 py-5 border-t border-gray-100">
+            <button type="button" onclick="cerrarModal('modalHistorial')" class="w-full py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition">
                 Cerrar
             </button>
         </div>
+
     </div>
 </div>
+
+
+{{-- ============================================================ --}}
+{{-- MODAL: EDITAR PRODUCTO --}}
+{{-- ============================================================ --}}
+
+<div id="modalEditar" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+
+        {{-- CABECERA --}}
+        <div class="px-7 py-5 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Editar Producto</h3>
+            <button type="button" onclick="cerrarModal('modalEditar')" class="text-gray-400 hover:text-gray-700 text-xl leading-none transition">&times;</button>
+        </div>
+
+        <form id="formEditar" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="px-7 py-6 space-y-5">
+
+                {{-- FILA 1: Nombre + Categoría --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del Producto</label>
+                        <input
+                            type="text"
+                            name="nombre"
+                            id="editarNombre"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Categoría</label>
+                        <select
+                            name="categoria_id"
+                            id="editarCategoria"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm bg-white"
+                        >
+                            @foreach($categorias as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- FILA 2: Precio Unitario + Unidad --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Precio Unitario ($)</label>
+                        <input
+                            type="number"
+                            name="precio"
+                            id="editarPrecio"
+                            min="0"
+                            step="0.01"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Unidad (ej. kg, L, und)</label>
+                        <input
+                            type="text"
+                            name="unidad"
+                            id="editarUnidad"
+                            placeholder="Ej: kg, L, und"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                        >
+                    </div>
+                </div>
+
+                {{-- FILA 3: Stock Actual + Stock Mínimo --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Stock Actual</label>
+                        <input
+                            type="number"
+                            name="cantidad"
+                            id="editarCantidad"
+                            min="0"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Stock Mínimo</label>
+                        <input
+                            type="number"
+                            name="stock_minimo"
+                            id="editarMinimo"
+                            min="0"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+                        >
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- FOOTER --}}
+            <div class="px-7 py-5 border-t border-gray-100 flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="cerrarModal('modalEditar')"
+                    class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition shadow-sm"
+                >
+                    Actualizar Producto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 @endsection
 
 @section('scripts')
 <script>
-    function openStockModal(productoId, productoNombre, stockActual) {
-        const form = document.getElementById('stockForm');
-        form.action = `/admin/inventario/${productoId}/stock`;
-        
-        document.getElementById('modal_producto_nombre').textContent = productoNombre;
-        document.getElementById('modal_stock_actual').textContent = stockActual;
 
-        document.getElementById('stockModal').classList.remove('hidden');
+    // ===== BUSQUEDA CON ENTER =====
+    document.getElementById('searchInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') document.getElementById('filtrosForm').submit();
+    });
+
+    // ===== TOGGLE MENU DROPDOWN =====
+    let menuAbierto = null;
+
+    function toggleMenu(id) {
+        const menu = document.getElementById('menu-' + id);
+        if (menuAbierto && menuAbierto !== menu) {
+            menuAbierto.classList.add('hidden');
+            menuAbierto.classList.remove('block');
+        }
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            menu.classList.add('block');
+            menuAbierto = menu;
+        } else {
+            menu.classList.add('hidden');
+            menu.classList.remove('block');
+            menuAbierto = null;
+        }
     }
 
-    function closeStockModal() {
-        document.getElementById('stockModal').classList.add('hidden');
+    document.addEventListener('click', function(e) {
+        if (menuAbierto) {
+            const btn = e.target.closest('button[onclick^="toggleMenu"]');
+            const men = e.target.closest('[id^="menu-"]');
+            if (!btn && !men) {
+                menuAbierto.classList.add('hidden');
+                menuAbierto.classList.remove('block');
+                menuAbierto = null;
+            }
+        }
+    });
+
+    // ===== MODALES: ABRIR / CERRAR =====
+    function cerrarModal(id) {
+        const m = document.getElementById(id);
+        m.classList.add('hidden');
+        m.classList.remove('flex');
     }
 
-    function openHistorialModal(productoId, productoNombre) {
-        document.getElementById('historial_producto_nombre').textContent = productoNombre;
-        const contenedor = document.getElementById('historialContenido');
-        contenedor.innerHTML = `
-            <div class="text-center py-8 text-gray-400">
-                <i class="fas fa-spinner fa-spin text-2xl"></i>
-                <p class="text-xs mt-2">Cargando movimientos...</p>
-            </div>
-        `;
-        document.getElementById('historialModal').classList.remove('hidden');
+    function abrirModal(id) {
+        const m = document.getElementById(id);
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+    }
 
-        fetch(`/admin/inventario/${productoId}/historial`)
-            .then(res => res.json())
+    ['modalStock', 'modalHistorial', 'modalEditar'].forEach(function(id) {
+        document.getElementById(id).addEventListener('click', function(e) {
+            if (e.target === this) cerrarModal(id);
+        });
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            ['modalStock','modalHistorial','modalEditar'].forEach(cerrarModal);
+        }
+    });
+
+    // ===== MODAL: ACTUALIZAR STOCK =====
+    function abrirModalStock(productoId, nombre, stockActual, unidad) {
+        if (menuAbierto) { menuAbierto.classList.add('hidden'); menuAbierto.classList.remove('block'); menuAbierto = null; }
+
+        document.getElementById('modalStockNombre').textContent = nombre;
+        document.getElementById('stockActualLabel').textContent = stockActual + (unidad && unidad !== '--' ? ' ' + unidad : '');
+        document.getElementById('unidadLabel').textContent = unidad && unidad !== '--' ? '(' + unidad + ')' : '';
+
+        const form = document.getElementById('formStock');
+        form.action = '/admin/inventario/' + productoId + '/stock';
+        form.reset();
+
+        abrirModal('modalStock');
+    }
+
+    // ===== MODAL: HISTORIAL =====
+    function verHistorial(productoId, nombre) {
+        if (menuAbierto) { menuAbierto.classList.add('hidden'); menuAbierto.classList.remove('block'); menuAbierto = null; }
+
+        document.getElementById('modalHistorialNombre').textContent = nombre;
+        document.getElementById('historialBody').innerHTML =
+            '<div class="text-center py-10 text-gray-400"><i class="fas fa-spinner fa-spin text-2xl mb-2 block"></i><p class="text-sm">Cargando historial...</p></div>';
+
+        abrirModal('modalHistorial');
+
+        fetch('/admin/inventario/' + productoId + '/historial')
+            .then(r => r.json())
             .then(data => {
-                if (data.length === 0) {
-                    contenedor.innerHTML = `
-                        <div class="text-center py-8 text-gray-400">
-                            <i class="fas fa-box-open text-3xl mb-2 text-gray-300 block"></i>
-                            <p class="text-sm">No hay movimientos registrados para este producto.</p>
-                        </div>
-                    `;
+                if (!data.length) {
+                    document.getElementById('historialBody').innerHTML =
+                        '<div class="text-center py-10 text-gray-300"><i class="fas fa-clock-rotate-left text-3xl mb-2 block"></i><p class="text-sm">Sin movimientos registrados</p></div>';
                     return;
                 }
-
-                let html = '<div class="divide-y divide-gray-100">';
-                data.forEach(m => {
+                document.getElementById('historialBody').innerHTML = data.map(m => {
                     const isEntrada = m.tipo === 'entrada';
-                    const badgeClass = isEntrada ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700';
-                    const icon = isEntrada ? 'fa-arrow-down' : 'fa-arrow-up';
-
-                    html += `
-                        <div class="py-3 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold ${badgeClass}">
-                                    <i class="fas ${icon}"></i>
-                                </span>
-                                <div>
-                                    <p class="text-xs font-semibold text-gray-800 capitalize">${m.tipo}: ${m.cantidad} unidades</p>
-                                    <p class="text-[11px] text-gray-400">${m.motivo ? m.motivo : 'Sin motivo especificado'}</p>
-                                </div>
-                            </div>
-                            <span class="text-[11px] text-gray-400 font-mono">${m.fecha}</span>
+                    const colorIcon = isEntrada ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500';
+                    const iconName  = isEntrada ? 'fa-arrow-down' : 'fa-arrow-up';
+                    const colorAmt  = isEntrada ? 'text-green-600' : 'text-red-500';
+                    const sign      = isEntrada ? '+' : '-';
+                    return `<div class="flex items-start gap-3 p-3 rounded-xl border border-gray-100 hover:bg-gray-50 transition">
+                        <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${colorIcon}">
+                            <i class="fas ${iconName} text-xs"></i>
                         </div>
-                    `;
-                });
-                html += '</div>';
-                contenedor.innerHTML = html;
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-sm font-semibold text-gray-700 capitalize">${m.tipo}</span>
+                                <span class="text-xs font-bold ${colorAmt}">${sign}${m.cantidad}</span>
+                            </div>
+                            <p class="text-xs text-gray-400 mt-0.5">${m.motivo ?? 'Sin motivo'}</p>
+                            <p class="text-gray-300 mt-1" style="font-size:10px">${m.fecha}</p>
+                        </div>
+                    </div>`;
+                }).join('');
             })
-            .catch(err => {
-                contenedor.innerHTML = `
-                    <div class="text-center py-6 text-rose-500 text-xs">
-                        <i class="fas fa-circle-exclamation text-lg mb-1 block"></i>
-                        Error al cargar el historial.
-                    </div>
-                `;
+            .catch(() => {
+                document.getElementById('historialBody').innerHTML =
+                    '<div class="text-center py-10 text-red-400"><i class="fas fa-circle-exclamation text-2xl mb-2 block"></i><p class="text-sm">Error al cargar el historial</p></div>';
             });
     }
 
-    function closeHistorialModal() {
-        document.getElementById('historialModal').classList.add('hidden');
+    // ===== MODAL: EDITAR PRODUCTO =====
+    function abrirModalEditar(productoId, nombre, categoriaId, precio, unidad, cantidad, minimo) {
+        if (menuAbierto) { menuAbierto.classList.add('hidden'); menuAbierto.classList.remove('block'); menuAbierto = null; }
+
+        document.getElementById('editarNombre').value   = nombre;
+        document.getElementById('editarPrecio').value   = precio;
+        document.getElementById('editarUnidad').value   = (unidad && unidad !== '--') ? unidad : '';
+        document.getElementById('editarCantidad').value = cantidad;
+        document.getElementById('editarMinimo').value   = minimo;
+
+        // Seleccionar categoría
+        const sel = document.getElementById('editarCategoria');
+        if (categoriaId) {
+            sel.value = categoriaId;
+        }
+
+        document.getElementById('formEditar').action = '/admin/inventario/' + productoId + '/editar-minimos';
+
+        abrirModal('modalEditar');
     }
+
+    // ===== EXPORTAR CSV =====
+    function exportarCSV() {
+        const filas = [['Producto','ID','Categoria','Unidad','Stock Actual','Stock Minimo','Estado','Valor Unitario','Valor Total']];
+        document.querySelectorAll('tbody tr[id^="fila-"]').forEach(tr => {
+            const td = tr.querySelectorAll('td');
+            if (!td.length) return;
+            filas.push([
+                td[0]?.querySelector('p.font-semibold')?.textContent?.trim() ?? '',
+                td[0]?.querySelector('p.text-gray-400')?.textContent?.trim() ?? '',
+                td[1]?.textContent?.trim() ?? '',
+                td[2]?.textContent?.trim() ?? '',
+                td[3]?.textContent?.trim() ?? '',
+                td[4]?.textContent?.trim() ?? '',
+                td[5]?.textContent?.trim() ?? '',
+                td[6]?.textContent?.trim() ?? '',
+                td[7]?.textContent?.trim() ?? '',
+            ]);
+        });
+        const csv  = filas.map(r => r.map(v => '"' + v.replace(/"/g,'""') + '"').join(',')).join('\n');
+        const blob = new Blob(['\uFEFF' + csv], {type:'text/csv;charset=utf-8;'});
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = 'inventario_' + new Date().toISOString().slice(0,10) + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
 </script>
 @endsection

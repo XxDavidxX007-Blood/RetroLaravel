@@ -148,4 +148,37 @@ class InventarioController extends Controller
 
     return response()->json($movimientos);
 }
+
+    public function editarMinimos(Request $request, Producto $producto)
+    {
+        $request->validate([
+            'nombre'           => 'required|string|max:255',
+            'categoria_id'     => 'required|exists:categoria_productos,id',
+            'precio'           => 'required|numeric|min:0',
+            'unidad'           => 'nullable|string|max:50',
+            'cantidad'         => 'required|integer|min:0',
+            'stock_minimo'     => 'required|integer|min:0',
+        ]);
+
+        // Actualizar datos del producto
+        $producto->update([
+            'nombre'                 => $request->nombre,
+            'categoria_producto_id'  => $request->categoria_id,
+            'precio'                 => $request->precio,
+        ]);
+
+        $inventario = $producto->inventario;
+
+        if (!$inventario) {
+            return back()->with('error', 'El producto no tiene registro de inventario.');
+        }
+
+        $inventario->update([
+            'cantidad'     => $request->cantidad,
+            'stock_minimo' => $request->stock_minimo,
+            'unidad'       => $request->filled('unidad') ? $request->unidad : $inventario->unidad,
+        ]);
+
+        return back()->with('success', "Se actualizaron los datos de {$producto->nombre}.");
+    }
 }
