@@ -121,4 +121,6 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::post('/inventario/{producto}/stock', [App\Http\Controllers\Admin\InventarioController::class, 'actualizarStock'])->name('inventario.actualizar-stock');
     Route::get('/inventario/{producto}/historial', [App\Http\Controllers\Admin\InventarioController::class, 'historial'])->name('inventario.historial');
     Route::get('/inventario/sugerencias', [App\Http\Controllers\Admin\InventarioController::class, 'sugerenciasStock'])->name('inventario.sugerencias');
+    Route::put('/inventario/{producto}/editar-minimos', [App\Http\Controllers\Admin\InventarioController::class, 'editarMinimos'])->name('inventario.editar-minimos');
+
 });
