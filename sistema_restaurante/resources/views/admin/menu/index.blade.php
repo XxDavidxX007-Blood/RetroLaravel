@@ -379,72 +379,133 @@
 <!-- ================================================= -->
 <!-- MODAL: EDITAR PLATO DEL MENÚ -->
 <!-- ================================================= -->
-<div id="editMenuModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-lg w-full p-7 shadow-2xl space-y-6 relative animate-fade-in">
-        
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-black text-retro-gold flex items-center justify-center">
-                    <i class="fas fa-pen text-sm"></i>
-                </div>
-                <h3 class="font-heading text-xl font-bold uppercase tracking-wider text-gray-900">Editar Plato</h3>
+<div id="editMenuModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#f0f2f5] rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden" style="max-height:95vh;overflow-y:auto;">
+
+        <!-- CABECERA -->
+        <div class="flex items-center justify-between px-6 pt-6 pb-4">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-pen text-gray-800 text-lg"></i>
+                <h3 class="text-xl font-bold text-gray-900">Editar Plato</h3>
             </div>
-            <button onclick="closeEditMenuModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
-            </button>
+            <button
+                onclick="closeEditMenuModal()"
+                class="text-gray-400 hover:text-gray-700 transition text-lg leading-none"
+                title="Cerrar"
+            >&times;</button>
         </div>
 
-        <form id="editMenuForm" method="POST" enctype="multipart/form-data" class="space-y-4">
+        <!-- FORMULARIO -->
+        <form id="editMenuForm" method="POST" enctype="multipart/form-data" class="px-6 pb-6 space-y-5">
             @csrf
             @method('PUT')
 
-            <div class="space-y-1">
-                <label class="text-xs font-semibold uppercase text-gray-600">Nombre del Plato / Bebida</label>
-                <input type="text" id="edit_nombre" name="nombre" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
+            <!-- Nombre -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del Plato o Bebida</label>
+                <input
+                    type="text"
+                    id="edit_nombre"
+                    name="nombre"
+                    required
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                >
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Categoría</label>
-                    <select id="edit_categoria_id" name="categoria_producto_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
+            <!-- Categoría + Precio -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Categoría</label>
+                    <select
+                        id="edit_categoria_id"
+                        name="categoria_producto_id"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                    >
                         @foreach($categorias as $c)
                             <option value="{{ $c->id }}">{{ $c->nombre }}</option>
                         @endforeach
                     </select>
                 </div>
-
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Precio ($)</label>
-                    <input type="number" step="100" min="0" id="edit_precio" name="precio" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black font-mono">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Precio de Venta ($)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        id="edit_precio"
+                        name="precio"
+                        required
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm font-mono"
+                    >
                 </div>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-xs font-semibold uppercase text-gray-600">Descripción</label>
-                <textarea id="edit_descripcion" name="descripcion" rows="2" class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            <!-- Descripción -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Descripción <span class="font-normal text-gray-400">(Visible para el cliente)</span></label>
+                <textarea
+                    id="edit_descripcion"
+                    name="descripcion"
+                    rows="3"
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm resize-y"
+                ></textarea>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">URL Imagen (Opcional)</label>
-                    <input type="url" id="edit_imagen_url" name="imagen_url" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
+            <!-- Imagen del Plato -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Imagen del Plato</label>
+                <div class="flex items-center gap-3">
 
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Disponibilidad</label>
-                    <select id="edit_estado" name="estado" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        <option value="1">Visible en catálogo</option>
-                        <option value="0">Oculto</option>
-                    </select>
+                    <!-- Preview de imagen actual -->
+                    <div id="edit_img_preview_wrap" class="w-16 h-16 rounded-xl bg-gray-200 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                        <img id="edit_img_preview" src="" alt="" class="w-full h-full object-cover hidden">
+                        <i id="edit_img_icon" class="fas fa-utensils text-gray-400 text-xl"></i>
+                    </div>
+
+                    <!-- Zona de carga -->
+                    <label
+                        for="edit_imagen_file"
+                        class="flex-1 flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer bg-white hover:bg-blue-50 transition text-blue-500 text-sm font-medium"
+                    >
+                        <i class="fas fa-upload text-base"></i>
+                        <span>Cambiar imagen <span class="text-gray-400 font-normal">(dejar vacío para mantener la actual)</span></span>
+                        <input type="file" id="edit_imagen_file" name="imagen" accept="image/*" class="hidden" onchange="previewEditImage(event)">
+                    </label>
+
                 </div>
             </div>
 
-            <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                <button type="button" onclick="closeEditMenuModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition">
+            <!-- Disponibilidad (checkbox) -->
+            <div class="flex items-center gap-3 pt-1">
+                <input
+                    type="checkbox"
+                    id="edit_estado_check"
+                    name="estado"
+                    value="1"
+                    class="w-5 h-5 rounded accent-blue-500 cursor-pointer"
+                >
+                <label for="edit_estado_check" class="text-sm font-semibold text-gray-700 cursor-pointer">
+                    Mostrar en Catálogo
+                    <span id="edit_disponibilidad_label" class="font-normal text-gray-500">(Disponible)</span>
+                </label>
+            </div>
+
+            <!-- Botones -->
+            <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-200 mt-2">
+                <button
+                    type="button"
+                    onclick="closeEditMenuModal()"
+                    class="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition"
+                >
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition shadow">
-                    Actualizar Plato
+                <button
+                    type="submit"
+                    class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition shadow"
+                >
+                    <i class="fas fa-floppy-disk text-sm"></i>
+                    Guardar Cambios
                 </button>
             </div>
         </form>
@@ -467,18 +528,62 @@
         const form = document.getElementById('editMenuForm');
         form.action = `/admin/menu/${producto.id}`;
 
-        document.getElementById('edit_nombre').value = producto.nombre || '';
-        document.getElementById('edit_categoria_id').value = producto.categoria_producto_id || '';
-        document.getElementById('edit_precio').value = producto.precio || '';
-        document.getElementById('edit_descripcion').value = producto.descripcion || '';
-        document.getElementById('edit_imagen_url').value = producto.imagen || '';
-        document.getElementById('edit_estado').value = (producto.estado == true || producto.estado == 1) ? '1' : '0';
+        document.getElementById('edit_nombre').value         = producto.nombre || '';
+        document.getElementById('edit_categoria_id').value   = producto.categoria_producto_id || '';
+        document.getElementById('edit_precio').value         = producto.precio || '';
+        document.getElementById('edit_descripcion').value    = producto.descripcion || '';
 
+        // Estado => checkbox
+        const check = document.getElementById('edit_estado_check');
+        const label = document.getElementById('edit_disponibilidad_label');
+        const activo = (producto.estado == true || producto.estado == 1);
+        check.checked = activo;
+        label.textContent = activo ? '(Disponible)' : '(Oculto)';
+        check.addEventListener('change', () => {
+            label.textContent = check.checked ? '(Disponible)' : '(Oculto)';
+        });
+
+        // Preview de imagen actual
+        const img    = document.getElementById('edit_img_preview');
+        const icon   = document.getElementById('edit_img_icon');
+        if (producto.imagen) {
+            img.src = producto.imagen;
+            img.classList.remove('hidden');
+            icon.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            img.src = '';
+            icon.classList.remove('hidden');
+        }
+
+        document.getElementById('edit_imagen_file').value = '';
         document.getElementById('editMenuModal').classList.remove('hidden');
     }
 
     function closeEditMenuModal() {
         document.getElementById('editMenuModal').classList.add('hidden');
     }
+
+    function previewEditImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img  = document.getElementById('edit_img_preview');
+            const icon = document.getElementById('edit_img_icon');
+            img.src = e.target.result;
+            img.classList.remove('hidden');
+            icon.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Cerrar modal al hacer clic en el fondo
+    document.getElementById('editMenuModal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditMenuModal();
+    });
+    document.getElementById('createMenuModal').addEventListener('click', function(e) {
+        if (e.target === this) closeCreateMenuModal();
+    });
 </script>
 @endsection

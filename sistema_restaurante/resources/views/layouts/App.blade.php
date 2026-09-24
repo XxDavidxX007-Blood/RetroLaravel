@@ -423,35 +423,35 @@
                 {{-- Usuario / Notificaciones --}}
                 {{-- ========================= --}}
 
-                <div class="flex items-center gap-5">
+                <div class="flex items-center gap-4">
 
-
-                    {{-- Notificaciones --}}
-
+                    {{-- Campana de Notificaciones --}}
                     <a
                         href="{{ route('notificaciones.index') }}"
-                        class="text-gray-500 hover:text-retro-gold transition"
+                        class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-retro-gold hover:bg-gray-200 transition"
                         title="Notificaciones"
                     >
-
-                        <i class="fas fa-bell"></i>
-
+                        <i class="fas fa-bell text-base"></i>
                     </a>
 
-
-                    {{-- Separador --}}
-
-                    <div class="h-8 w-px bg-gray-200"></div>
-
-
-                    {{-- Nombre --}}
-
-                    <a href="{{ route('perfil') }}" class="text-sm text-gray-600 hover:text-retro-gold transition font-medium">
-
-                        {{ auth()->user()->name ?? 'Usuario' }}
-
+                    {{-- Rol y nombre --}}
+                    <a href="{{ route('perfil') }}" class="flex flex-col text-right leading-tight hover:opacity-80 transition">
+                        <span class="text-xs font-bold tracking-widest text-gray-800 uppercase">
+                            {{ auth()->user()->role->nombre ?? 'Cliente' }}
+                        </span>
+                        <span class="text-xs text-gray-400 font-medium">
+                            {{ auth()->user()->name ?? 'Usuario' }}
+                        </span>
                     </a>
 
+                    {{-- Avatar --}}
+                    <a
+                        href="{{ route('perfil') }}"
+                        class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:text-retro-gold hover:bg-gray-200 transition"
+                        title="Ver perfil"
+                    >
+                        <i class="fas fa-user text-base"></i>
+                    </a>
 
                 </div>
 

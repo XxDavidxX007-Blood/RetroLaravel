@@ -63,20 +63,35 @@
 
         <!-- FOTO DE PERFIL / AVATAR + NOMBRE Y ROL -->
         <div class="px-8 pb-4 relative">
-            <div class="-mt-14 inline-block relative">
+            <div class="-mt-14 inline-block relative group cursor-pointer" id="avatarWrapper" title="Cambiar foto de perfil">
+
+                <!-- Foto actual o inicial -->
                 @if($user->foto)
                     <img
+                        id="avatarPreview"
                         src="{{ asset('storage/' . $user->foto) }}"
                         alt="{{ $user->name }}"
                         class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md bg-white"
                     >
                 @else
-                    <div class="w-24 h-24 rounded-full border-4 border-white shadow-md bg-white flex items-center justify-center p-1">
+                    <div id="avatarInitials" class="w-24 h-24 rounded-full border-4 border-white shadow-md bg-white flex items-center justify-center p-1">
                         <div class="w-full h-full rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-retro-gold font-heading font-bold text-2xl">
                             {{ strtoupper(substr($user->name, 0, 1)) }}
                         </div>
                     </div>
+                    <img
+                        id="avatarPreview"
+                        src=""
+                        alt="Preview"
+                        class="w-24 h-24 rounded-full object-cover border-4 border-white shadow-md bg-white hidden"
+                    >
                 @endif
+
+                <!-- Overlay cámara al hacer hover -->
+                <div class="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                    <i class="fas fa-camera text-white text-lg"></i>
+                </div>
+
             </div>
 
             <div class="mt-3">
@@ -97,6 +112,9 @@
         <form action="{{ route('perfil.update') }}" method="POST" enctype="multipart/form-data" class="p-8 pt-4 space-y-6">
             @csrf
             @method('PUT')
+
+            <!-- Input oculto para la foto (se activa al hacer click en el avatar) -->
+            <input type="file" name="foto" id="fotoInput" accept="image/*" class="hidden">
 
             <!-- NOMBRES Y APELLIDOS -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -300,5 +318,35 @@
             icon.classList.add('fa-eye');
         }
     }
+
+    // --- Cambio de foto de perfil ---
+    const avatarWrapper  = document.getElementById('avatarWrapper');
+    const fotoInput      = document.getElementById('fotoInput');
+    const avatarPreview  = document.getElementById('avatarPreview');
+    const avatarInitials = document.getElementById('avatarInitials');
+
+    // Al hacer click en el avatar, abrir el selector de archivos
+    avatarWrapper.addEventListener('click', () => fotoInput.click());
+
+    // Al seleccionar una imagen, mostrar preview
+    fotoInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            // Ocultar iniciales si existen
+            if (avatarInitials) {
+                avatarInitials.classList.add('hidden');
+            }
+            // Mostrar preview
+            avatarPreview.src = e.target.result;
+            avatarPreview.classList.remove('hidden');
+            avatarPreview.style.opacity = '0';
+            avatarPreview.style.transition = 'opacity 0.3s ease';
+            requestAnimationFrame(() => { avatarPreview.style.opacity = '1'; });
+        };
+        reader.readAsDataURL(file);
+    });
 </script>
 @endpush
