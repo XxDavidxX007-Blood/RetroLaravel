@@ -41,7 +41,7 @@ class ReservaController extends Controller
 
         $reservas = $query->latest('fecha_reserva')->paginate(7)->withQueryString();
         $estados = EstadoReserva::all();
-        $mesas = Mesa::orderBy('numero_mesa')->get();
+        $mesas = Mesa::with('estadoMesa')->orderBy('numero_mesa')->get();
         $clientes = Cliente::with('user')->get();
 
         // ===== MÉTRICAS =====

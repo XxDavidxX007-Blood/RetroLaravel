@@ -273,16 +273,24 @@ class DomicilioController extends Controller
             ];
         });
 
+        $obs = $pedido->observaciones ?? '';
+        $direccion = $obs;
+        if (str_contains($obs, 'Dirección:')) {
+            $direccion = trim(explode('|', explode('Dirección:', $obs)[1])[0]);
+        }
+
         return response()->json([
             'id' => $pedido->id,
-            'codigo' => '#DOM-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT),
+            'codigo' => '#ORD-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT),
             'cliente' => ($pedido->cliente->user->name ?? 'Cliente') . ' ' . ($pedido->cliente->user->apellidos ?? ''),
             'telefono' => $pedido->cliente->user->telefono ?? 'N/A',
-            'observaciones' => $pedido->observaciones ?? 'Sin notas de entrega',
+            'tipo' => 'domicilio',
+            'observaciones' => $obs,
+            'direccion' => $direccion,
             'estado' => $pedido->estadoPedido->nombre_estado ?? 'Pendiente',
             'estado_id' => $pedido->estado_pedido_id,
             'total' => '$' . number_format($pedido->total, 0, ',', '.'),
-            'fecha' => $pedido->created_at ? $pedido->created_at->format('d/m/Y H:i A') : 'N/A',
+            'fecha' => $pedido->created_at ? $pedido->created_at->format('d/m/Y') : 'N/A',
             'detalles' => $detallesFormateados,
         ]);
     }

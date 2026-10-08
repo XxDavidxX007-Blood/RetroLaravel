@@ -86,6 +86,35 @@ class InventarioController extends Controller
         ));
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nombre'               => 'required|string|max:255',
+            'categoria_producto_id'=> 'required|exists:categorias_productos,id',
+            'precio'               => 'required|numeric|min:0',
+            'unidad'               => 'nullable|string|max:50',
+            'stock_inicial'        => 'required|integer|min:0',
+            'stock_minimo'         => 'required|integer|min:0',
+        ]);
+
+        $producto = Producto::create([
+            'nombre'               => $request->nombre,
+            'categoria_producto_id'=> $request->categoria_producto_id,
+            'precio'               => $request->precio,
+            'estado'               => true,
+        ]);
+
+        Inventario::create([
+            'producto_id'  => $producto->id,
+            'cantidad'     => $request->stock_inicial,
+            'stock_minimo' => $request->stock_minimo,
+            'stock_maximo' => max(50, $request->stock_inicial * 2),
+            'unidad'       => $request->unidad,
+        ]);
+
+        return back()->with('success', "Producto \"{$producto->nombre}\" creado correctamente.");
+    }
+
     public function actualizarStock(Request $request, Producto $producto)
     {
         $request->validate([
@@ -120,6 +149,24 @@ class InventarioController extends Controller
 
         $tipoTexto = $request->tipo === 'entrada' ? 'entrada' : 'salida';
         return back()->with('success', "Se registró la {$tipoTexto} de {$request->cantidad} unidades de {$producto->nombre}.");
+    }
+
+    public function destroy(Producto $producto)
+    {
+        // Eliminar detalles de pedidos y facturas que referencian este producto
+        \App\Models\DetallePedido::where('producto_id', $producto->id)->delete();
+        \App\Models\DetalleFactura::where('producto_id', $producto->id)->delete();
+
+        // Eliminar inventario y sus movimientos
+        if ($producto->inventario) {
+            $producto->inventario->movimientos()->delete();
+            $producto->inventario->delete();
+        }
+
+        $nombre = $producto->nombre;
+        $producto->delete();
+
+        return back()->with('success', "Producto \"{$nombre}\" eliminado correctamente.");
     }
 
     public function sugerenciasStock()

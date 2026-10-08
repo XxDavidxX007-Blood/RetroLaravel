@@ -12,6 +12,9 @@ class PedidoController extends Controller
 {
     public function index(Request $request)
     {
+        $tipoDomicilio = \App\Models\TipoPedido::where('nombre', 'like', '%domicilio%')->first();
+        $tipoDomicilioId = $tipoDomicilio ? $tipoDomicilio->id : null;
+
         $query = Pedido::with([
             'cliente.user',
             'mesero.user',
@@ -19,6 +22,10 @@ class PedidoController extends Controller
             'estadoPedido',
             'detalles.producto'
         ]);
+
+        if ($tipoDomicilioId) {
+            $query->where('tipo_pedido_id', '!=', $tipoDomicilioId);
+        }
 
         // Filtro por Estado (Tabs)
         if ($request->filled('estado') && $request->input('estado') !== 'todos') {
@@ -53,22 +60,27 @@ class PedidoController extends Controller
         $estados = EstadoPedido::all();
 
         // ===== MÉTRICAS =====
-        $pedidosHoy = Pedido::whereDate('created_at', now()->today())->count();
+        $basePedidos = Pedido::query();
+        if ($tipoDomicilioId) {
+            $basePedidos->where('tipo_pedido_id', '!=', $tipoDomicilioId);
+        }
+
+        $pedidosHoy = (clone $basePedidos)->whereDate('created_at', now()->today())->count();
         
-        $enPreparacion = Pedido::whereHas('estadoPedido', function ($q) {
+        $enPreparacion = (clone $basePedidos)->whereHas('estadoPedido', function ($q) {
             $q->where('nombre_estado', 'like', '%preparaci%');
         })->count();
 
-        $listos = Pedido::whereHas('estadoPedido', function ($q) {
+        $listos = (clone $basePedidos)->whereHas('estadoPedido', function ($q) {
             $q->where('nombre_estado', 'Listo');
         })->count();
 
-        $completadosHoy = Pedido::whereDate('created_at', now()->today())
+        $completadosHoy = (clone $basePedidos)->whereDate('created_at', now()->today())
             ->whereHas('estadoPedido', function ($q) {
                 $q->where('nombre_estado', 'Entregado');
             })->count();
 
-        $canceladosHoy = Pedido::whereDate('created_at', now()->today())
+        $canceladosHoy = (clone $basePedidos)->whereDate('created_at', now()->today())
             ->whereHas('estadoPedido', function ($q) {
                 $q->where('nombre_estado', 'Cancelado');
             })->count();
@@ -120,17 +132,28 @@ class PedidoController extends Controller
             ];
         });
 
+        $obs = $pedido->observaciones ?? '';
+        $direccion = $obs;
+        if (str_contains($obs, 'Dirección:')) {
+            $direccion = trim(explode('|', explode('Dirección:', $obs)[1])[0]);
+        } elseif (str_contains($obs, 'Mesa')) {
+            $direccion = trim(explode('|', $obs)[0]);
+        } elseif (str_contains($obs, 'Para llevar')) {
+            $direccion = trim(explode('|', $obs)[0]);
+        }
+
         return response()->json([
             'id' => $pedido->id,
             'codigo' => '#ORD-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT),
             'cliente' => $pedido->cliente->user->name ?? 'Cliente',
             'telefono' => $pedido->cliente->user->telefono ?? 'N/A',
-            'tipo' => $pedido->tipoPedido->nombre ?? 'Mesa',
-            'observaciones' => $pedido->observaciones ?? 'Sin observaciones',
+            'tipo' => strtolower($pedido->tipoPedido->nombre ?? 'mesa'),
+            'observaciones' => $obs,
+            'direccion' => $direccion,
             'estado' => $pedido->estadoPedido->nombre_estado ?? 'Pendiente',
             'estado_id' => $pedido->estado_pedido_id,
             'total' => '$' . number_format($pedido->total, 0, ',', '.'),
-            'fecha' => $pedido->created_at ? $pedido->created_at->format('d/m/Y H:i A') : 'N/A',
+            'fecha' => $pedido->created_at ? $pedido->created_at->format('d/m/Y') : 'N/A',
             'detalles' => $detallesFormateados,
         ]);
     }
