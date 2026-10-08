@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>@yield('title', 'Retro Restaurant')</title>
 
@@ -198,7 +199,7 @@
             <a
                 href="{{ route('productos.index') }}"
                 class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg mb-2
-                {{ request()->routeIs('productos.*') ? 'active' : '' }}"
+                {{ request()->routeIs('productos.*') || request()->routeIs('cliente.catalogo') ? 'active' : '' }}"
                 title="Catálogo"
             >
 
@@ -538,6 +539,8 @@
             }
         });
     </script>
+
+    @stack('scripts')
 
 </body>
 
