@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ClientePedidoController;
 
 use App\Http\Controllers\Admin\UserController;
 
@@ -83,22 +84,24 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
 Route::middleware('auth')->group(function () {
 
+    // Catálogo
+    Route::get('/catalogo', [ProductoController::class, 'index'])->name('cliente.catalogo');
+
     // Reservas
     Route::get('/mis-reservas', function () {
         return view('cliente.reservas');
     })->name('reservas.cliente');
 
+    // Pedidos (Módulo de pedidos en mesa y llevar)
+    Route::get('/mis-pedidos', [ClientePedidoController::class, 'indexPedidos'])->name('pedidos.cliente');
 
-    // Pedidos
-    Route::get('/mis-pedidos', function () {
-        return view('cliente.pedidos');
-    })->name('pedidos.cliente');
+    // Domicilios (Módulo de pedidos a domicilio)
+    Route::get('/domicilios', [ClientePedidoController::class, 'indexDomicilios'])->name('domicilios.cliente');
 
-
-    // Domicilios
-    Route::get('/domicilios', function () {
-        return view('cliente.domicilios');
-    })->name('domicilios.cliente');
+    // Registrar pedido o domicilio desde el catálogo/carrito
+    Route::post('/cliente/pedidos', [ClientePedidoController::class, 'store'])->name('cliente.pedidos.store');
+    Route::post('/cliente/pedidos/{pedido}/cancelar', [ClientePedidoController::class, 'cancelar'])->name('cliente.pedidos.cancelar');
+    Route::get('/cliente/pedidos/{pedido}/detalles', [ClientePedidoController::class, 'detalles'])->name('cliente.pedidos.detalles');
 
 
     // Perfil
@@ -118,9 +121,11 @@ Route::middleware('auth')->group(function () {
 // ==========================================
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/inventario', [App\Http\Controllers\Admin\InventarioController::class, 'index'])->name('inventario.index');
+    Route::post('/inventario', [App\Http\Controllers\Admin\InventarioController::class, 'store'])->name('inventario.store');
     Route::post('/inventario/{producto}/stock', [App\Http\Controllers\Admin\InventarioController::class, 'actualizarStock'])->name('inventario.actualizar-stock');
     Route::get('/inventario/{producto}/historial', [App\Http\Controllers\Admin\InventarioController::class, 'historial'])->name('inventario.historial');
     Route::get('/inventario/sugerencias', [App\Http\Controllers\Admin\InventarioController::class, 'sugerenciasStock'])->name('inventario.sugerencias');
     Route::put('/inventario/{producto}/editar-minimos', [App\Http\Controllers\Admin\InventarioController::class, 'editarMinimos'])->name('inventario.editar-minimos');
+    Route::delete('/inventario/{producto}', [App\Http\Controllers\Admin\InventarioController::class, 'destroy'])->name('inventario.destroy');
 
 });
