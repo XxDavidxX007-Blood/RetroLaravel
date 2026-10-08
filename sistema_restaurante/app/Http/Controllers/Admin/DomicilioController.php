@@ -214,10 +214,8 @@ class DomicilioController extends Controller
 
                     MovimientoInventario::create([
                         'inventario_id' => $inventario->id,
-                        'tipo_movimiento' => 'Salida',
+                        'tipo' => 'Salida',
                         'cantidad' => $cant,
-                        'stock_anterior' => $stockAnterior,
-                        'stock_nuevo' => $inventario->cantidad,
                         'motivo' => "Domicilio #DOM-" . str_pad($pedido->id, 5, '0', STR_PAD_LEFT),
                         'user_id' => auth()->id(),
                     ]);
@@ -298,12 +296,29 @@ class DomicilioController extends Controller
     public function destroy(Pedido $pedido)
     {
         try {
+            $codigo = '#ORD-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT);
             $estadoCancelado = EstadoPedido::where('nombre_estado', 'like', '%cancelado%')->first();
             if ($estadoCancelado) {
                 $pedido->update(['estado_pedido_id' => $estadoCancelado->id]);
             }
+
+            // Reintegrar inventario
+            foreach ($pedido->detalles as $detalle) {
+                $inv = Inventario::where('producto_id', $detalle->producto_id)->first();
+                if ($inv) {
+                    $inv->increment('cantidad', $detalle->cantidad);
+                    MovimientoInventario::create([
+                        'inventario_id' => $inv->id,
+                        'tipo' => 'Entrada',
+                        'cantidad' => $detalle->cantidad,
+                        'motivo' => "Cancelación administrativa de {$codigo}",
+                        'user_id' => auth()->id(),
+                    ]);
+                }
+            }
+
             return redirect()->route('admin.domicilios.index')
-                ->with('success', "El domicilio #DOM-" . str_pad($pedido->id, 5, '0', STR_PAD_LEFT) . " ha sido cancelado.");
+                ->with('success', "El domicilio {$codigo} ha sido cancelado exitosamente y su stock reintegrado.");
         } catch (\Exception $e) {
             return redirect()->route('admin.domicilios.index')
                 ->with('error', 'Error al cancelar el domicilio: ' . $e->getMessage());

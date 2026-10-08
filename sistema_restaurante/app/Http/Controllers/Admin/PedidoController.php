@@ -157,4 +157,37 @@ class PedidoController extends Controller
             'detalles' => $detallesFormateados,
         ]);
     }
+
+    public function destroy(Pedido $pedido)
+    {
+        try {
+            $codigo = '#ORD-' . str_pad($pedido->id, 5, '0', STR_PAD_LEFT);
+            $estadoCancelado = EstadoPedido::where('nombre_estado', 'like', '%cancelado%')->first();
+            
+            if ($estadoCancelado) {
+                $pedido->update(['estado_pedido_id' => $estadoCancelado->id]);
+            }
+
+            // Reintegrar inventario
+            foreach ($pedido->detalles as $detalle) {
+                $inv = \App\Models\Inventario::where('producto_id', $detalle->producto_id)->first();
+                if ($inv) {
+                    $inv->increment('cantidad', $detalle->cantidad);
+                    \App\Models\MovimientoInventario::create([
+                        'inventario_id' => $inv->id,
+                        'tipo' => 'Entrada',
+                        'cantidad' => $detalle->cantidad,
+                        'motivo' => "Cancelación administrativa de {$codigo}",
+                        'user_id' => auth()->id(),
+                    ]);
+                }
+            }
+
+            return redirect()->route('admin.pedidos.index')
+                ->with('success', "El pedido {$codigo} ha sido cancelado exitosamente y su stock reintegrado.");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.pedidos.index')
+                ->with('error', "Error al cancelar el pedido: " . $e->getMessage());
+        }
+    }
 }

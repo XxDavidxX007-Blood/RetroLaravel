@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Reserva;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Models\Mesa;
+use App\Models\EstadoReserva;
+use App\Models\Cliente;
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -20,7 +23,8 @@ class DashboardController extends Controller
                 return view('admin.dashboard');
 
             case 2:
-                return view('empleado.dashboard');
+                return $this->empleadoDashboard($usuario);
+
 
             case 3:
                 return $this->clienteDashboard($usuario);
@@ -68,6 +72,35 @@ class DashboardController extends Controller
             'totalPedidos',
             'totalDomicilios',
             'totalProductos'
+        ));
+    }
+
+    private function empleadoDashboard($usuario)
+    {
+        $hoy = Carbon::today();
+
+        $reservasHoy = Reserva::whereDate('fecha_reserva', $hoy)->count();
+
+        $pedidosHoy = Pedido::whereDate('created_at', $hoy)
+            ->where('tipo_pedido_id', '!=', 2)
+            ->count();
+
+        $domiciliosHoy = Pedido::whereDate('created_at', $hoy)
+            ->where('tipo_pedido_id', 2)
+            ->count();
+
+        // Datos para el modal de nueva reserva
+        $mesas    = Mesa::with('estadoMesa')->orderBy('numero_mesa')->get();
+        $estados  = EstadoReserva::all();
+        $clientes = Cliente::with('user')->get();
+
+        return view('empleado.dashboard', compact(
+            'reservasHoy',
+            'pedidosHoy',
+            'domiciliosHoy',
+            'mesas',
+            'estados',
+            'clientes'
         ));
     }
 }
