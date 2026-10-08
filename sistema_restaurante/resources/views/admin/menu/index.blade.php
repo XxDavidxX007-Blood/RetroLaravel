@@ -303,71 +303,130 @@
 <!-- ================================================= -->
 <!-- MODAL: AGREGAR PLATO AL MENÚ -->
 <!-- ================================================= -->
-<div id="createMenuModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-lg w-full p-7 shadow-2xl space-y-6 relative animate-fade-in">
-        
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-[#2563eb] text-white flex items-center justify-center">
-                    <i class="fas fa-plus text-sm"></i>
-                </div>
-                <h3 class="font-heading text-xl font-bold uppercase tracking-wider text-gray-900">Agregar Plato al Menú</h3>
+<div id="createMenuModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#f0f2f5] rounded-2xl w-full max-w-md shadow-2xl relative overflow-hidden" style="max-height:95vh;overflow-y:auto;">
+
+        {{-- CABECERA --}}
+        <div class="flex items-center justify-between px-6 pt-6 pb-4">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-burger text-gray-800 text-lg"></i>
+                <h3 class="text-xl font-bold text-gray-900">Nuevo Plato al Menú</h3>
             </div>
-            <button onclick="closeCreateMenuModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
-            </button>
+            <button onclick="closeCreateMenuModal()" class="text-gray-400 hover:text-gray-700 transition text-lg leading-none" title="Cerrar">&times;</button>
         </div>
 
-        <form action="{{ route('admin.menu.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+        {{-- FORMULARIO --}}
+        <form action="{{ route('admin.menu.store') }}" method="POST" enctype="multipart/form-data" class="px-6 pb-6 space-y-5">
             @csrf
 
-            <div class="space-y-1">
-                <label class="text-xs font-semibold uppercase text-gray-600">Nombre del Plato / Bebida</label>
-                <input type="text" name="nombre" required placeholder="Ej. Carne Bistec" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
+            {{-- Nombre --}}
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del Plato o Bebida</label>
+                <input
+                    type="text"
+                    name="nombre"
+                    required
+                    placeholder="Ej. Hamburguesa Doble"
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                >
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Categoría</label>
-                    <select name="categoria_producto_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        <option value="">Seleccionar categoría</option>
+            {{-- Categoría + Precio --}}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Categoría</label>
+                    <select
+                        name="categoria_producto_id"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm"
+                    >
+                        <option value="">Seleccione...</option>
                         @foreach($categorias as $c)
                             <option value="{{ $c->id }}">{{ $c->nombre }}</option>
                         @endforeach
                     </select>
                 </div>
-
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Precio ($)</label>
-                    <input type="number" step="100" min="0" name="precio" required placeholder="30000" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black font-mono">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Precio de Venta ($)</label>
+                    <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        name="precio"
+                        required
+                        placeholder="0.00"
+                        class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm font-mono"
+                    >
                 </div>
             </div>
 
-            <div class="space-y-1">
-                <label class="text-xs font-semibold uppercase text-gray-600">Descripción</label>
-                <textarea name="descripcion" rows="2" placeholder="Ej. Deliciosa porción de carne bistec con especias..." class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black"></textarea>
+            {{-- Descripción --}}
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                    Descripción <span class="font-normal text-gray-400">(Visible para el cliente)</span>
+                </label>
+                <textarea
+                    name="descripcion"
+                    rows="3"
+                    placeholder="Ingredientes o descripción atractiva..."
+                    class="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400 shadow-sm resize-y"
+                ></textarea>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">URL Imagen (Opcional)</label>
-                    <input type="url" name="imagen_url" placeholder="https://..." class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
+            {{-- Imagen del Plato --}}
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Imagen del Plato</label>
+                <div class="flex items-center gap-3">
 
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Disponibilidad</label>
-                    <select name="estado" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        <option value="1" selected>Visible en catálogo</option>
-                        <option value="0">Oculto</option>
-                    </select>
+                    {{-- Preview --}}
+                    <div class="w-16 h-16 rounded-xl bg-gray-200 border border-gray-200 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                        <img id="create_img_preview" src="" alt="" class="w-full h-full object-cover hidden">
+                        <i id="create_img_icon" class="fas fa-image text-gray-400 text-xl"></i>
+                    </div>
+
+                    {{-- Botón dashed --}}
+                    <label
+                        for="create_imagen_file"
+                        class="flex-1 flex items-center gap-2 px-4 py-3 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer bg-white hover:bg-blue-50 transition text-blue-500 text-sm font-medium"
+                    >
+                        <i class="fas fa-upload text-base"></i>
+                        <span>Seleccionar imagen <span class="text-gray-400 font-normal">(JPG, PNG, WEBP — máx. 2MB)</span></span>
+                        <input type="file" id="create_imagen_file" name="imagen" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="previewCreateImage(event)">
+                    </label>
+
                 </div>
             </div>
 
-            <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                <button type="button" onclick="closeCreateMenuModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition">
+            {{-- Disponibilidad --}}
+            <div class="flex items-center gap-3 pt-1">
+                <input
+                    type="checkbox"
+                    id="create_estado_check"
+                    name="estado"
+                    value="1"
+                    checked
+                    class="w-5 h-5 rounded accent-blue-500 cursor-pointer"
+                >
+                <label for="create_estado_check" class="text-sm font-semibold text-gray-700 cursor-pointer">
+                    Mostrar en Catálogo
+                    <span id="create_disponibilidad_label" class="font-normal text-gray-500">(Disponible)</span>
+                </label>
+            </div>
+
+            {{-- Botones --}}
+            <div class="flex items-center justify-end gap-3 pt-2 border-t border-gray-200 mt-2">
+                <button
+                    type="button"
+                    onclick="closeCreateMenuModal()"
+                    class="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-xl transition"
+                >
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition shadow">
+                <button
+                    type="submit"
+                    class="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#2563eb] text-white hover:bg-blue-700 transition shadow"
+                >
+                    <i class="fas fa-floppy-disk text-sm"></i>
                     Guardar Plato
                 </button>
             </div>
@@ -523,6 +582,26 @@
     function closeCreateMenuModal() {
         document.getElementById('createMenuModal').classList.add('hidden');
     }
+
+    function previewCreateImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img  = document.getElementById('create_img_preview');
+            const icon = document.getElementById('create_img_icon');
+            img.src = e.target.result;
+            img.classList.remove('hidden');
+            icon.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // Checkbox disponibilidad al crear
+    document.getElementById('create_estado_check').addEventListener('change', function() {
+        document.getElementById('create_disponibilidad_label').textContent =
+            this.checked ? '(Disponible)' : '(Oculto)';
+    });
 
     function openEditMenuModal(producto) {
         const form = document.getElementById('editMenuForm');

@@ -344,77 +344,95 @@
 
 
 <!-- ================================================= -->
-<!-- MODAL: DETALLES DEL PEDIDO -->
+<!-- MODAL: DETALLES DEL PEDIDO (DISEÑO EXACTO) -->
 <!-- ================================================= -->
 <div id="orderDetailsModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-xl w-full p-7 shadow-2xl space-y-6 relative animate-fade-in">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative space-y-4 animate-fade-in border border-gray-100">
         
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-black text-retro-gold flex items-center justify-center">
-                    <i class="fas fa-receipt text-sm"></i>
-                </div>
-                <div>
-                    <h3 id="modal_pedido_codigo" class="font-heading text-xl font-bold uppercase tracking-wider text-gray-900">#ORD-00000</h3>
-                    <p id="modal_pedido_fecha" class="text-xs text-gray-500"></p>
-                </div>
+        <!-- HEADER: TICKET + CÓDIGO + CERRAR -->
+        <div class="flex justify-between items-center pb-1">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-receipt text-black text-xl"></i>
+                <h3 id="modal_pedido_codigo" class="font-heading text-2xl font-bold text-gray-900 tracking-tight">
+                    #ORD-00000
+                </h3>
             </div>
-            <button onclick="closeOrderDetailsModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
+            <button 
+                type="button" 
+                onclick="closeOrderDetailsModal()" 
+                class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer"
+            >
+                <i class="fas fa-xmark text-lg"></i>
             </button>
         </div>
 
-        <!-- Info Cliente y Tipo -->
-        <div class="grid grid-cols-2 gap-4 bg-gray-50 p-4 rounded-2xl border border-gray-100 text-xs">
-            <div>
-                <p class="text-gray-400 font-semibold uppercase">Cliente</p>
-                <p id="modal_cliente_nombre" class="font-bold text-gray-900 text-sm mt-0.5"></p>
-                <p id="modal_cliente_telefono" class="text-gray-500 mt-0.5"></p>
+        <!-- FILA 1: FECHA Y TIPO -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+                <span class="text-xs text-gray-400 block font-medium mb-1">Fecha</span>
+                <span id="modal_pedido_fecha" class="font-bold text-gray-900 text-sm block font-sans">
+                    --/--/----
+                </span>
             </div>
-            <div>
-                <p class="text-gray-400 font-semibold uppercase">Tipo / Estado</p>
-                <p id="modal_pedido_tipo" class="font-bold text-gray-900 text-sm mt-0.5"></p>
-                <p id="modal_pedido_estado" class="font-semibold text-emerald-600 mt-0.5"></p>
-            </div>
-        </div>
-
-        <!-- Lista de Productos -->
-        <div>
-            <h4 class="text-xs font-bold uppercase text-gray-500 tracking-wider mb-2">Detalle de Platillos</h4>
-            <div class="max-h-52 overflow-y-auto border border-gray-100 rounded-2xl overflow-hidden">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-gray-50 text-gray-500 border-b border-gray-100">
-                        <tr>
-                            <th class="py-2.5 px-3">Platillo</th>
-                            <th class="py-2.5 px-3 text-center">Cant.</th>
-                            <th class="py-2.5 px-3 text-right">Precio</th>
-                            <th class="py-2.5 px-3 text-right">Subtotal</th>
-                        </tr>
-                    </thead>
-                    <tbody id="modal_detalles_tbody" class="divide-y divide-gray-100">
-                        <!-- JS inyectará items -->
-                    </tbody>
-                </table>
+            <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+                <span class="text-xs text-gray-400 block font-medium mb-1">Tipo</span>
+                <span id="modal_pedido_tipo" class="font-bold text-gray-900 text-sm block font-sans lowercase">
+                    mesa
+                </span>
             </div>
         </div>
 
-        <!-- Observaciones y Total -->
-        <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+        <!-- FILA 2: ESTADO -->
+        <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+            <span class="text-xs text-gray-400 block font-medium mb-1.5">Estado</span>
             <div>
-                <p class="text-[11px] text-gray-400 uppercase font-semibold">Observaciones:</p>
-                <p id="modal_pedido_obs" class="text-xs text-gray-600 italic">Sin observaciones</p>
-            </div>
-            <div class="text-right">
-                <p class="text-[11px] text-gray-400 uppercase font-semibold">Total a Pagar</p>
-                <p id="modal_pedido_total" class="text-2xl font-extrabold text-gray-900 font-heading text-emerald-600">$0</p>
+                <span id="modal_pedido_estado_badge" class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#fef3c7] text-[#d97706]">
+                    Pendiente
+                </span>
             </div>
         </div>
 
-        <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-            <button type="button" onclick="closeOrderDetailsModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-                Cerrar
-            </button>
+        <!-- FILA 3: DIRECCIÓN / MESA -->
+        <div class="bg-[#f8fafc] p-3.5 rounded-2xl" id="modal_pedido_direccion_box">
+            <span id="modal_pedido_direccion_label" class="text-xs text-gray-400 block font-medium mb-1">
+                Dirección de entrega
+            </span>
+            <span id="modal_pedido_direccion_val" class="font-bold text-gray-900 text-sm block break-words">
+                --
+            </span>
         </div>
+
+        <!-- FILA 4: PRODUCTOS -->
+        <div class="pt-1">
+            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 font-sans">
+                PRODUCTOS
+            </h4>
+
+            <div class="bg-[#f8fafc] rounded-2xl p-4 pt-3 overflow-hidden">
+                <!-- Cabecera de la lista -->
+                <div class="grid grid-cols-12 text-xs font-heading font-bold text-gray-700 uppercase py-2 border-b border-gray-200/60">
+                    <div class="col-span-6">PRODUCTO</div>
+                    <div class="col-span-2 text-center">CANT.</div>
+                    <div class="col-span-4 text-right">SUBTOTAL</div>
+                </div>
+
+                <!-- Filas de productos inyectadas con JS -->
+                <div id="modal_detalles_lista" class="divide-y divide-gray-100/80 text-xs">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TOTAL BANNER (BARRA OSCURA CON TOTAL EN VERDE) -->
+        <div class="bg-[#1e293b] rounded-2xl p-4 px-5 flex justify-between items-center text-white shadow-sm mt-3">
+            <span class="font-heading text-sm font-bold tracking-wider uppercase text-white">
+                TOTAL
+            </span>
+            <span id="modal_pedido_total_val" class="font-heading text-xl sm:text-2xl font-black text-[#22c55e]">
+                $0
+            </span>
+        </div>
+
     </div>
 </div>
 
@@ -470,8 +488,8 @@
 @section('scripts')
 <script>
     function openOrderDetailsModal(pedidoId) {
-        const tbody = document.getElementById('modal_detalles_tbody');
-        tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-400">Cargando detalles...</td></tr>';
+        const lista = document.getElementById('modal_detalles_lista');
+        lista.innerHTML = '<div class="py-4 text-center text-gray-400">Cargando detalles...</div>';
 
         document.getElementById('orderDetailsModal').classList.remove('hidden');
 
@@ -480,32 +498,68 @@
             .then(data => {
                 document.getElementById('modal_pedido_codigo').textContent = data.codigo;
                 document.getElementById('modal_pedido_fecha').textContent = data.fecha;
-                document.getElementById('modal_cliente_nombre').textContent = data.cliente;
-                document.getElementById('modal_cliente_telefono').textContent = data.telefono;
-                document.getElementById('modal_pedido_tipo').textContent = data.tipo;
-                document.getElementById('modal_pedido_estado').textContent = data.estado;
-                document.getElementById('modal_pedido_obs').textContent = data.observaciones || 'Sin observaciones';
-                document.getElementById('modal_pedido_total').textContent = data.total;
+                document.getElementById('modal_pedido_tipo').textContent = (data.tipo || 'mesa').toLowerCase();
 
+                // Estado badge
+                const estadoBadge = document.getElementById('modal_pedido_estado_badge');
+                estadoBadge.textContent = data.estado;
+                const estLower = (data.estado || '').toLowerCase();
+                if (estLower.includes('pendiente')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#fef3c7] text-[#d97706]';
+                } else if (estLower.includes('prepara')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800';
+                } else if (estLower.includes('listo') || estLower.includes('camino')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800';
+                } else if (estLower.includes('entregado')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
+                } else {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700';
+                }
+
+                // Dirección / Ubicación
+                const tipoLower = (data.tipo || '').toLowerCase();
+                const labelDir = document.getElementById('modal_pedido_direccion_label');
+                const valDir = document.getElementById('modal_pedido_direccion_val');
+                
+                if (tipoLower.includes('domicilio')) {
+                    labelDir.textContent = 'Dirección de entrega';
+                    valDir.textContent = data.direccion || data.observaciones || 'Sin dirección registrada';
+                } else if (tipoLower.includes('llevar')) {
+                    labelDir.textContent = 'Entrega para llevar';
+                    valDir.textContent = data.direccion || data.observaciones || 'Recoger en mostrador';
+                } else {
+                    labelDir.textContent = 'Mesa asignada';
+                    valDir.textContent = data.direccion || data.observaciones || 'Mesa del salón';
+                }
+
+                // Total en el banner inferior
+                document.getElementById('modal_pedido_total_val').textContent = data.total;
+
+                // Lista de productos
                 if (data.detalles && data.detalles.length > 0) {
                     let html = '';
                     data.detalles.forEach(d => {
                         html += `
-                            <tr>
-                                <td class="py-2.5 px-3 font-semibold text-gray-900">${d.producto}</td>
-                                <td class="py-2.5 px-3 text-center text-gray-700 font-bold">${d.cantidad}</td>
-                                <td class="py-2.5 px-3 text-right text-gray-600 font-mono">${d.precio_unitario}</td>
-                                <td class="py-2.5 px-3 text-right font-bold text-gray-900 font-mono">${d.subtotal}</td>
-                            </tr>
+                            <div class="grid grid-cols-12 items-center py-2.5">
+                                <div class="col-span-6 font-medium text-gray-800 lowercase truncate pr-2">
+                                    ${d.producto}
+                                </div>
+                                <div class="col-span-2 text-center text-gray-700 font-normal">
+                                    ${d.cantidad}
+                                </div>
+                                <div class="col-span-4 text-right font-bold text-gray-900 font-sans">
+                                    ${d.subtotal}
+                                </div>
+                            </div>
                         `;
                     });
-                    tbody.innerHTML = html;
+                    lista.innerHTML = html;
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-gray-400">No hay productos registrados en este pedido.</td></tr>';
+                    lista.innerHTML = '<div class="py-4 text-center text-gray-400">No hay productos registrados en este pedido.</div>';
                 }
             })
             .catch(err => {
-                tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-rose-500">Error al cargar los detalles.</td></tr>';
+                lista.innerHTML = '<div class="py-4 text-center text-rose-500">Error al cargar los detalles.</div>';
             });
     }
 

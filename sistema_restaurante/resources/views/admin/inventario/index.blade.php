@@ -36,13 +36,14 @@
             </a>
 
             {{-- NUEVO PRODUCTO --}}
-            <a
-                href="{{ route('admin.menu.index') }}"
+            <button
+                type="button"
+                onclick="abrirModalNuevo()"
                 class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition shadow-sm"
             >
                 <i class="fas fa-plus text-xs"></i>
                 Nuevo Producto
-            </a>
+            </button>
 
         </div>
 
@@ -313,25 +314,8 @@
 
                                     <div
                                         id="menu-{{ $producto->id }}"
-                                        class="hidden absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-30 py-1.5 text-sm"
+                                        class="hidden absolute right-0 mt-1 w-40 bg-white rounded-xl shadow-xl border border-gray-100 z-30 py-1.5 text-sm"
                                     >
-                                        <button
-                                            type="button"
-                                            onclick="abrirModalStock({{ $producto->id }}, '{{ addslashes($producto->nombre) }}', {{ $cantidad }}, '{{ addslashes($unidad) }}')"
-                                            class="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 flex items-center gap-2.5"
-                                        >
-                                            <i class="fas fa-arrow-right-arrow-left text-blue-400 w-4"></i>
-                                            Actualizar Stock
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onclick="verHistorial({{ $producto->id }}, '{{ addslashes($producto->nombre) }}')"
-                                            class="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 flex items-center gap-2.5"
-                                        >
-                                            <i class="fas fa-clock-rotate-left text-purple-400 w-4"></i>
-                                            Ver Historial
-                                        </button>
-                                        <hr class="my-1 border-gray-100">
                                         <button
                                             type="button"
                                             onclick="abrirModalEditar(
@@ -345,9 +329,21 @@
                                             )"
                                             class="w-full text-left px-4 py-2.5 text-gray-700 hover:bg-gray-50 flex items-center gap-2.5"
                                         >
-                                            <i class="fas fa-pen text-amber-400 w-4"></i>
-                                            Editar Producto
+                                            <i class="fas fa-pen text-blue-400 w-4"></i>
+                                            Editar
                                         </button>
+
+                                        <form method="POST" action="{{ route('admin.inventario.destroy', $producto->id) }}" onsubmit="return confirm('¿Eliminar «{{ addslashes($producto->nombre) }}»? Esta acción no se puede deshacer.')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button
+                                                type="submit"
+                                                class="w-full text-left px-4 py-2.5 text-red-500 hover:bg-red-50 flex items-center gap-2.5"
+                                            >
+                                                <i class="fas fa-trash text-red-400 w-4"></i>
+                                                Eliminar
+                                            </button>
+                                        </form>
                                     </div>
                                 </div>
                             </td>
@@ -412,6 +408,124 @@
         </a>
     </div>
 
+</div>
+
+
+{{-- ============================================================ --}}
+{{-- MODAL: NUEVO PRODUCTO --}}
+{{-- ============================================================ --}}
+
+<div id="modalNuevo" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 overflow-hidden">
+
+        {{-- CABECERA --}}
+        <div class="px-7 py-5 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900">Nuevo Producto</h3>
+            <button type="button" onclick="cerrarModal('modalNuevo')" class="text-gray-400 hover:text-gray-700 text-xl leading-none transition">&times;</button>
+        </div>
+
+        <form method="POST" action="{{ route('admin.inventario.store') }}">
+            @csrf
+
+            <div class="px-7 py-6 space-y-5">
+
+                {{-- FILA 1: Nombre + Categoría --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nombre del Producto</label>
+                        <input
+                            type="text"
+                            name="nombre"
+                            required
+                            placeholder=""
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Categoría</label>
+                        <select
+                            name="categoria_producto_id"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm bg-white"
+                        >
+                            <option value="">Seleccione...</option>
+                            @foreach($categorias as $cat)
+                                <option value="{{ $cat->id }}">{{ $cat->nombre }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+
+                {{-- FILA 2: Precio Unitario + Unidad --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Precio Unitario ($)</label>
+                        <input
+                            type="number"
+                            name="precio"
+                            min="0"
+                            step="0.01"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Unidad (ej. kg, L, und)</label>
+                        <input
+                            type="text"
+                            name="unidad"
+                            placeholder="Ej: kg, L, und"
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                        >
+                    </div>
+                </div>
+
+                {{-- FILA 3: Stock Inicial + Stock Mínimo --}}
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Stock Inicial</label>
+                        <input
+                            type="number"
+                            name="stock_inicial"
+                            min="0"
+                            value="0"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1.5">Stock Mínimo</label>
+                        <input
+                            type="number"
+                            name="stock_minimo"
+                            min="0"
+                            value="5"
+                            required
+                            class="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-green-400 text-sm"
+                        >
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- FOOTER --}}
+            <div class="px-7 py-5 border-t border-gray-100 flex justify-end gap-3">
+                <button
+                    type="button"
+                    onclick="cerrarModal('modalNuevo')"
+                    class="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition"
+                >
+                    Cancelar
+                </button>
+                <button
+                    type="submit"
+                    class="px-6 py-2.5 rounded-xl bg-green-500 hover:bg-green-600 text-white text-sm font-semibold transition shadow-sm"
+                >
+                    Guardar Producto
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 
@@ -712,7 +826,7 @@
         m.classList.add('flex');
     }
 
-    ['modalStock', 'modalHistorial', 'modalEditar'].forEach(function(id) {
+    ['modalNuevo', 'modalStock', 'modalHistorial', 'modalEditar'].forEach(function(id) {
         document.getElementById(id).addEventListener('click', function(e) {
             if (e.target === this) cerrarModal(id);
         });
@@ -720,9 +834,14 @@
 
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            ['modalStock','modalHistorial','modalEditar'].forEach(cerrarModal);
+            ['modalNuevo', 'modalStock', 'modalHistorial', 'modalEditar'].forEach(cerrarModal);
         }
     });
+
+    // ===== MODAL: NUEVO PRODUCTO =====
+    function abrirModalNuevo() {
+        abrirModal('modalNuevo');
+    }
 
     // ===== MODAL: ACTUALIZAR STOCK =====
     function abrirModalStock(productoId, nombre, stockActual, unidad) {

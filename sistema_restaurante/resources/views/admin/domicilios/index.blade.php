@@ -550,81 +550,96 @@
 </div>
 
 <!-- ========================================================= -->
-<!-- MODAL: DETALLES DE DOMICILIO -->
+<!-- MODAL: DETALLES DE DOMICILIO (DISEÑO EXACTO) -->
 <!-- ========================================================= -->
 <div
     id="modalDetalles"
     class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 overflow-y-auto"
 >
-    <div class="bg-white rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden my-8">
-
-        <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-            <div>
-                <h3 id="detallesCodigo" class="font-heading text-xl font-bold text-gray-900">
-                    #DOM-00000
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl relative space-y-4 animate-fade-in border border-gray-100 my-8">
+        
+        <!-- HEADER: TICKET + CÓDIGO + CERRAR -->
+        <div class="flex justify-between items-center pb-1">
+            <div class="flex items-center gap-2.5">
+                <i class="fas fa-receipt text-black text-xl"></i>
+                <h3 id="detallesCodigo" class="font-heading text-2xl font-bold text-gray-900 tracking-tight">
+                    #ORD-00000
                 </h3>
-                <p id="detallesFecha" class="text-xs text-gray-400">
-                    00/00/0000 00:00
-                </p>
             </div>
-
-            <button
-                type="button"
-                onclick="closeModalDetalles()"
-                class="w-8 h-8 rounded-full bg-gray-100 text-gray-400 hover:text-gray-700 flex items-center justify-center"
+            <button 
+                type="button" 
+                onclick="closeModalDetalles()" 
+                class="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition cursor-pointer"
             >
-                <i class="fas fa-xmark"></i>
+                <i class="fas fa-xmark text-lg"></i>
             </button>
         </div>
 
-        <div class="p-6 space-y-5">
-            <!-- CLIENTE Y DIRECCIÓN -->
-            <div class="bg-gray-50 p-4 rounded-xl space-y-2 text-xs">
-                <div class="flex justify-between">
-                    <span class="text-gray-400 font-bold uppercase">Cliente:</span>
-                    <span id="detallesCliente" class="font-semibold text-gray-900"></span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400 font-bold uppercase">Teléfono:</span>
-                    <span id="detallesTelefono" class="font-semibold text-gray-900"></span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-gray-400 font-bold uppercase">Dirección / Notas:</span>
-                    <span id="detallesObservaciones" class="font-semibold text-gray-900 text-right max-w-xs"></span>
-                </div>
-                <div class="flex justify-between items-center pt-1 border-t border-gray-200">
-                    <span class="text-gray-400 font-bold uppercase">Estado actual:</span>
-                    <span id="detallesEstado" class="font-bold text-retro-gold"></span>
-                </div>
+        <!-- FILA 1: FECHA Y TIPO -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+                <span class="text-xs text-gray-400 block font-medium mb-1">Fecha</span>
+                <span id="detallesFecha" class="font-bold text-gray-900 text-sm block font-sans">
+                    --/--/----
+                </span>
             </div>
-
-            <!-- PRODUCTOS -->
-            <div>
-                <h4 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">
-                    Productos del Pedido
-                </h4>
-                <div id="detallesListaProductos" class="divide-y divide-gray-100 text-xs">
-                    <!-- Dinámico -->
-                </div>
-            </div>
-
-            <!-- TOTAL -->
-            <div class="pt-3 border-t border-gray-100 flex justify-between items-center">
-                <span class="text-xs font-bold text-gray-600 uppercase">Total Pedido:</span>
-                <span id="detallesTotal" class="text-lg font-extrabold text-gray-900 font-heading">
-                    $0
+            <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+                <span class="text-xs text-gray-400 block font-medium mb-1">Tipo</span>
+                <span id="detallesTipo" class="font-bold text-gray-900 text-sm block font-sans lowercase">
+                    domicilio
                 </span>
             </div>
         </div>
 
-        <div class="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
-            <button
-                type="button"
-                onclick="closeModalDetalles()"
-                class="px-5 py-2 rounded-xl bg-gray-900 text-white text-xs font-bold hover:bg-retro-gold transition"
-            >
-                Cerrar
-            </button>
+        <!-- FILA 2: ESTADO -->
+        <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+            <span class="text-xs text-gray-400 block font-medium mb-1.5">Estado</span>
+            <div>
+                <span id="detallesEstadoBadge" class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#fef3c7] text-[#d97706]">
+                    Pendiente
+                </span>
+            </div>
+        </div>
+
+        <!-- FILA 3: DIRECCIÓN DE ENTREGA -->
+        <div class="bg-[#f8fafc] p-3.5 rounded-2xl">
+            <span class="text-xs text-gray-400 block font-medium mb-1">
+                Dirección de entrega
+            </span>
+            <span id="detallesDireccionVal" class="font-bold text-gray-900 text-sm block break-words">
+                --
+            </span>
+        </div>
+
+        <!-- FILA 4: PRODUCTOS -->
+        <div class="pt-1">
+            <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 font-sans">
+                PRODUCTOS
+            </h4>
+
+            <div class="bg-[#f8fafc] rounded-2xl p-4 pt-3 overflow-hidden">
+                <!-- Cabecera de la lista -->
+                <div class="grid grid-cols-12 text-xs font-heading font-bold text-gray-700 uppercase py-2 border-b border-gray-200/60">
+                    <div class="col-span-6">PRODUCTO</div>
+                    <div class="col-span-2 text-center">CANT.</div>
+                    <div class="col-span-4 text-right">SUBTOTAL</div>
+                </div>
+
+                <!-- Filas de productos inyectadas con JS -->
+                <div id="detallesListaProductos" class="divide-y divide-gray-100/80 text-xs">
+                    <!-- Dinámico -->
+                </div>
+            </div>
+        </div>
+
+        <!-- TOTAL BANNER (BARRA OSCURA CON TOTAL EN VERDE) -->
+        <div class="bg-[#1e293b] rounded-2xl p-4 px-5 flex justify-between items-center text-white shadow-sm mt-3">
+            <span class="font-heading text-sm font-bold tracking-wider uppercase text-white">
+                TOTAL
+            </span>
+            <span id="detallesTotal" class="font-heading text-xl sm:text-2xl font-black text-[#22c55e]">
+                $0
+            </span>
         </div>
 
     </div>
@@ -790,41 +805,66 @@
 
     // Modal Detalles
     function verDetalles(id) {
+        const lista = document.getElementById('detallesListaProductos');
+        lista.innerHTML = '<div class="py-4 text-center text-gray-400">Cargando detalles...</div>';
+
+        document.getElementById('modalDetalles').classList.remove('hidden');
+        document.getElementById('modalDetalles').classList.add('flex');
+
         fetch(`/admin/domicilios/${id}/detalles`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('detallesCodigo').innerText = data.codigo;
                 document.getElementById('detallesFecha').innerText = data.fecha;
-                document.getElementById('detallesCliente').innerText = data.cliente;
-                document.getElementById('detallesTelefono').innerText = data.telefono;
-                document.getElementById('detallesObservaciones').innerText = data.observaciones;
-                document.getElementById('detallesEstado').innerText = data.estado;
+                document.getElementById('detallesTipo').innerText = (data.tipo || 'domicilio').toLowerCase();
+
+                // Estado badge
+                const estadoBadge = document.getElementById('detallesEstadoBadge');
+                estadoBadge.innerText = data.estado;
+                const estLower = (data.estado || '').toLowerCase();
+                if (estLower.includes('pendiente')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-[#fef3c7] text-[#d97706]';
+                } else if (estLower.includes('prepara')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800';
+                } else if (estLower.includes('listo') || estLower.includes('camino')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800';
+                } else if (estLower.includes('entregado')) {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800';
+                } else {
+                    estadoBadge.className = 'inline-block px-3.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700';
+                }
+
+                // Dirección
+                document.getElementById('detallesDireccionVal').innerText = data.direccion || data.observaciones || 'Sin dirección registrada';
+
+                // Total
                 document.getElementById('detallesTotal').innerText = data.total;
 
                 let html = '';
                 if (data.detalles && data.detalles.length > 0) {
                     data.detalles.forEach(d => {
                         html += `
-                            <div class="py-2 flex justify-between items-center">
-                                <div>
-                                    <span class="font-semibold text-gray-900">${d.producto}</span>
-                                    <span class="text-gray-400 text-[11px] block">${d.cantidad} x ${d.precio_unitario}</span>
+                            <div class="grid grid-cols-12 items-center py-2.5">
+                                <div class="col-span-6 font-medium text-gray-800 lowercase truncate pr-2">
+                                    ${d.producto}
                                 </div>
-                                <span class="font-bold text-gray-900">${d.subtotal}</span>
+                                <div class="col-span-2 text-center text-gray-700 font-normal">
+                                    ${d.cantidad}
+                                </div>
+                                <div class="col-span-4 text-right font-bold text-gray-900 font-sans">
+                                    ${d.subtotal}
+                                </div>
                             </div>
                         `;
                     });
                 } else {
-                    html = '<p class="text-gray-400 py-2">Sin detalles de productos registrados.</p>';
+                    html = '<div class="py-4 text-center text-gray-400">Sin detalles de productos registrados.</div>';
                 }
-                document.getElementById('detallesListaProductos').innerHTML = html;
-
-                document.getElementById('modalDetalles').classList.remove('hidden');
-                document.getElementById('modalDetalles').classList.add('flex');
+                lista.innerHTML = html;
             })
             .catch(err => {
                 console.error(err);
-                alert('No se pudieron cargar los detalles del pedido.');
+                lista.innerHTML = '<div class="py-4 text-center text-rose-500">Error al cargar los detalles.</div>';
             });
     }
 

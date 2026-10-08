@@ -306,88 +306,144 @@
 <!-- ================================================= -->
 <!-- MODAL: NUEVA RESERVA -->
 <!-- ================================================= -->
-<div id="nuevaReservaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-lg w-full p-7 shadow-2xl space-y-5 relative animate-fade-in max-h-[90vh] overflow-y-auto">
+<div id="nuevaReservaModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" style="max-height:92vh;">
 
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-black text-retro-gold flex items-center justify-center">
-                    <i class="fas fa-calendar-plus text-sm"></i>
-                </div>
-                <h3 class="font-heading text-xl font-bold uppercase tracking-wider text-gray-900">Nueva Reserva</h3>
+        {{-- CABECERA --}}
+        <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-plus text-gray-800 text-base"></i>
+                <h3 class="text-lg font-bold text-gray-900">Nueva Reserva</h3>
             </div>
-            <button onclick="closeNuevaReservaModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
-            </button>
+            <button onclick="closeNuevaReservaModal()" class="text-gray-400 hover:text-gray-700 transition text-xl leading-none">&times;</button>
         </div>
 
-        <form method="POST" action="{{ route('admin.reservas.store') }}" class="space-y-4">
+        {{-- FORMULARIO --}}
+        <form method="POST" action="{{ route('admin.reservas.store') }}" class="px-6 py-5 space-y-4 overflow-y-auto" style="max-height:calc(92vh - 60px);">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Cliente -->
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Cliente *</label>
-                    <select name="cliente_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        <option value="">Seleccionar cliente...</option>
-                        @foreach($clientes as $c)
-                            <option value="{{ $c->id }}">{{ $c->user->name ?? 'Sin nombre' }}</option>
-                        @endforeach
-                    </select>
-                </div>
+            {{-- Cliente --}}
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1.5">Cliente</label>
+                <select
+                    name="cliente_id"
+                    class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                >
+                    <option value="">Sin cliente asignado</option>
+                    @foreach($clientes as $c)
+                        <option value="{{ $c->id }}">{{ $c->user->name ?? 'Sin nombre' }}</option>
+                    @endforeach
+                </select>
+            </div>
 
-                <!-- Mesa -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Mesa *</label>
-                    <select name="mesa_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        <option value="">Seleccionar mesa...</option>
-                        @foreach($mesas as $m)
-                            <option value="{{ $m->id }}">Mesa {{ $m->numero_mesa }} ({{ $m->capacidad }} pers.) — {{ $m->ubicacion }}</option>
-                        @endforeach
-                    </select>
+            {{-- Fecha + Hora --}}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Fecha</label>
+                    <input
+                        type="date"
+                        name="fecha_reserva"
+                        required
+                        value="{{ now()->toDateString() }}"
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
                 </div>
-
-                <!-- Cantidad de personas -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Cantidad de Personas *</label>
-                    <input type="number" name="cantidad_personas" min="1" max="20" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black" placeholder="Ej: 4">
-                </div>
-
-                <!-- Fecha -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Fecha de Reserva *</label>
-                    <input type="date" name="fecha_reserva" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
-
-                <!-- Hora -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Hora *</label>
-                    <input type="time" name="hora_reserva" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
-
-                <!-- Estado -->
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Estado *</label>
-                    <select name="estado_reserva_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        @foreach($estados as $e)
-                            <option value="{{ $e->id }}" {{ $e->nombre_estado === 'Pendiente' ? 'selected' : '' }}>{{ $e->nombre_estado }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Observaciones -->
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Observaciones</label>
-                    <textarea name="observaciones" rows="2" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none" placeholder="Notas adicionales (opcional)..."></textarea>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Hora</label>
+                    <input
+                        type="time"
+                        name="hora_reserva"
+                        required
+                        value="12:00"
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
                 </div>
             </div>
 
-            <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                <button type="button" onclick="closeNuevaReservaModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition">
+            {{-- Personas + Estado --}}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Personas</label>
+                    <input
+                        type="number"
+                        name="cantidad_personas"
+                        min="1"
+                        max="20"
+                        required
+                        value="2"
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Estado</label>
+                    <select
+                        name="estado_reserva_id"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
+                        @foreach($estados as $e)
+                            <option value="{{ $e->id }}" {{ $e->nombre_estado === 'Pendiente' ? 'selected' : '' }}>
+                                {{ $e->nombre_estado }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
+
+            {{-- Mesa --}}
+            <div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <label class="text-sm font-semibold text-gray-700">Mesa <span class="text-red-500">*</span></label>
+                    <span class="text-xs text-gray-400">— las rojas ya tienen reserva en ese horario</span>
+                </div>
+                <div class="flex items-center gap-4 mb-2">
+                    <span class="flex items-center gap-1.5 text-xs text-gray-600">
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span> Disponible
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-gray-600">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span> Ocupada
+                    </span>
+                </div>
+
+                {{-- Grid de mesas scrolleable --}}
+                <div class="grid grid-cols-4 gap-2 overflow-y-auto pr-1" style="max-height:180px;">
+                    @foreach($mesas as $m)
+                        @php
+                            $ocupada = $m->estadoMesa && Str::contains(strtolower($m->estadoMesa->nombre_estado ?? ''), 'ocup');
+                        @endphp
+                        <label class="cursor-pointer">
+                            <input type="radio" name="mesa_id" value="{{ $m->id }}" required class="sr-only peer" {{ $loop->first ? 'checked' : '' }}>
+                            <div class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl border-2 text-center transition
+                                {{ $ocupada ? 'border-red-200 bg-red-50 text-red-400' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-400' }}
+                                peer-checked:border-gray-800 peer-checked:bg-gray-100 peer-checked:text-gray-800"
+                            >
+                                <i class="fas fa-chair text-lg"></i>
+                                <span class="text-xs font-semibold leading-tight">Mesa {{ $m->numero_mesa }}</span>
+                                <span class="text-[10px] leading-tight text-gray-400">Cap. {{ $m->capacidad }}</span>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+                {{-- Input hidden para compatibilidad cuando no hay mesas --}}
+                @if($mesas->isEmpty())
+                    <p class="text-xs text-gray-400 mt-2">No hay mesas disponibles.</p>
+                @endif
+            </div>
+
+            {{-- Botones --}}
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                    type="button"
+                    onclick="closeNuevaReservaModal()"
+                    class="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition"
+                >
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#0a0a0a] text-white hover:bg-black border border-black hover:border-retro-gold transition shadow">
-                    Crear Reserva
+                <button
+                    type="submit"
+                    class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-gray-900 text-white hover:bg-black transition shadow"
+                >
+                    Guardar
                 </button>
             </div>
         </form>
@@ -398,87 +454,136 @@
 <!-- ================================================= -->
 <!-- MODAL: EDITAR RESERVA -->
 <!-- ================================================= -->
-<div id="editReservaModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl border-2 border-black max-w-lg w-full p-7 shadow-2xl space-y-5 relative animate-fade-in max-h-[90vh] overflow-y-auto">
+<div id="editReservaModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden" style="max-height:92vh;">
 
-        <div class="flex justify-between items-center border-b border-gray-100 pb-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-black text-retro-gold flex items-center justify-center">
-                    <i class="fas fa-pen text-sm"></i>
-                </div>
-                <h3 class="font-heading text-xl font-bold uppercase tracking-wider text-gray-900">Editar Reserva</h3>
+        {{-- CABECERA --}}
+        <div class="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-pen text-blue-500 text-base"></i>
+                <h3 class="text-lg font-bold text-gray-900">Editar Reserva</h3>
             </div>
-            <button onclick="closeEditModal()" class="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 flex items-center justify-center transition">
-                <i class="fas fa-xmark"></i>
-            </button>
+            <button onclick="closeEditModal()" class="text-gray-400 hover:text-gray-700 transition text-xl leading-none">&times;</button>
         </div>
 
-        <form id="editReservaForm" method="POST" action="" class="space-y-4">
+        {{-- FORMULARIO --}}
+        <form id="editReservaForm" method="POST" action="" class="px-6 py-5 space-y-4 overflow-y-auto" style="max-height:calc(92vh - 60px);">
             @csrf
             @method('PUT')
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Cliente -->
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Cliente *</label>
-                    <select id="edit_cliente_id" name="cliente_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        @foreach($clientes as $c)
-                            <option value="{{ $c->id }}">{{ $c->user->name ?? 'Sin nombre' }}</option>
-                        @endforeach
-                    </select>
+            {{-- Personas + Estado --}}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Personas</label>
+                    <input
+                        type="number"
+                        id="edit_cantidad_personas"
+                        name="cantidad_personas"
+                        min="1"
+                        max="20"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
                 </div>
-
-                <!-- Mesa -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Mesa *</label>
-                    <select id="edit_mesa_id" name="mesa_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                        @foreach($mesas as $m)
-                            <option value="{{ $m->id }}">Mesa {{ $m->numero_mesa }} ({{ $m->capacidad }} pers.) — {{ $m->ubicacion }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Cantidad personas -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Personas *</label>
-                    <input id="edit_cantidad_personas" type="number" name="cantidad_personas" min="1" max="20" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
-
-                <!-- Fecha -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Fecha *</label>
-                    <input id="edit_fecha_reserva" type="date" name="fecha_reserva" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
-
-                <!-- Hora -->
-                <div class="space-y-1">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Hora *</label>
-                    <input id="edit_hora_reserva" type="time" name="hora_reserva" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
-                </div>
-
-                <!-- Estado -->
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Estado *</label>
-                    <select id="edit_estado_reserva_id" name="estado_reserva_id" required class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Estado</label>
+                    <select
+                        id="edit_estado_reserva_id"
+                        name="estado_reserva_id"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
                         @foreach($estados as $e)
                             <option value="{{ $e->id }}">{{ $e->nombre_estado }}</option>
                         @endforeach
                     </select>
                 </div>
+            </div>
 
-                <!-- Observaciones -->
-                <div class="space-y-1 md:col-span-2">
-                    <label class="text-xs font-semibold uppercase text-gray-600">Observaciones</label>
-                    <textarea id="edit_observaciones" name="observaciones" rows="2" class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-black resize-none"></textarea>
+            {{-- Fecha + Hora --}}
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Fecha</label>
+                    <input
+                        type="date"
+                        id="edit_fecha_reserva"
+                        name="fecha_reserva"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1.5">Hora</label>
+                    <input
+                        type="time"
+                        id="edit_hora_reserva"
+                        name="hora_reserva"
+                        required
+                        class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                    >
                 </div>
             </div>
 
-            <div class="pt-4 flex justify-end gap-3 border-t border-gray-100">
-                <button type="button" onclick="closeEditModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition">
+            {{-- Mesa --}}
+            <div>
+                <div class="flex items-center gap-2 mb-1.5">
+                    <label class="text-sm font-semibold text-gray-700">Mesa <span class="text-red-500">*</span></label>
+                    <span class="text-xs text-gray-400">— las rojas ya están reservadas en ese horario</span>
+                </div>
+                <div class="flex items-center gap-4 mb-2">
+                    <span class="flex items-center gap-1.5 text-xs text-gray-600">
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500 inline-block"></span> Disponible
+                    </span>
+                    <span class="flex items-center gap-1.5 text-xs text-gray-600">
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-400 inline-block"></span> Ocupada
+                    </span>
+                </div>
+
+                {{-- Grid de mesas scrolleable --}}
+                <div class="grid grid-cols-4 gap-2 overflow-y-auto pr-1" style="max-height:180px;">
+                    @foreach($mesas as $m)
+                        @php
+                            $ocupada = $m->estadoMesa && Str::contains(strtolower($m->estadoMesa->nombre_estado ?? ''), 'ocup');
+                        @endphp
+                        <label class="cursor-pointer">
+                            <input
+                                type="radio"
+                                name="mesa_id"
+                                value="{{ $m->id }}"
+                                required
+                                class="sr-only peer edit-mesa-radio"
+                                data-mesa-id="{{ $m->id }}"
+                            >
+                            <div class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl border-2 text-center transition
+                                {{ $ocupada ? 'border-red-200 bg-red-50 text-red-400' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-400' }}
+                                peer-checked:border-gray-800 peer-checked:bg-gray-100 peer-checked:text-gray-800"
+                            >
+                                <i class="fas fa-chair text-lg"></i>
+                                <span class="text-xs font-semibold leading-tight">Mesa {{ $m->numero_mesa }}</span>
+                                <span class="text-[10px] leading-tight text-gray-400">Cap. {{ $m->capacidad }}</span>
+                            </div>
+                        </label>
+                    @endforeach
+                </div>
+                @if($mesas->isEmpty())
+                    <p class="text-xs text-gray-400 mt-2">No hay mesas disponibles.</p>
+                @endif
+            </div>
+
+            {{-- Botones --}}
+            <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+                <button
+                    type="button"
+                    onclick="closeEditModal()"
+                    class="px-5 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-100 rounded-xl transition"
+                >
                     Cancelar
                 </button>
-                <button type="submit" class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-[#0a0a0a] text-white hover:bg-black border border-black hover:border-retro-gold transition shadow">
-                    Guardar Cambios
+                <button
+                    type="submit"
+                    class="px-6 py-2.5 rounded-xl text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 transition shadow"
+                >
+                    Actualizar
                 </button>
             </div>
         </form>
@@ -502,25 +607,25 @@
         const form = document.getElementById('editReservaForm');
         form.action = `/admin/reservas/${reserva.id}`;
 
-        document.getElementById('edit_cliente_id').value = reserva.cliente_id;
-        document.getElementById('edit_mesa_id').value = reserva.mesa_id;
-        document.getElementById('edit_cantidad_personas').value = reserva.cantidad_personas;
-        document.getElementById('edit_estado_reserva_id').value = reserva.estado_reserva_id;
-        document.getElementById('edit_observaciones').value = reserva.observaciones ?? '';
+        document.getElementById('edit_cantidad_personas').value  = reserva.cantidad_personas;
+        document.getElementById('edit_estado_reserva_id').value  = reserva.estado_reserva_id;
 
-        // fecha_reserva viene como "YYYY-MM-DD" del cast
+        // Fecha
         if (reserva.fecha_reserva) {
             document.getElementById('edit_fecha_reserva').value = reserva.fecha_reserva.substring(0, 10);
         }
 
-        // hora_reserva viene como "YYYY-MM-DD HH:mm:ss" por el cast datetime
+        // Hora — puede venir como "HH:mm:ss", "YYYY-MM-DD HH:mm:ss" o con T
         if (reserva.hora_reserva) {
-            // Extraer HH:mm de la cadena
-            const hora = reserva.hora_reserva.includes('T')
-                ? reserva.hora_reserva.split('T')[1].substring(0, 5)
-                : reserva.hora_reserva.substring(11, 16);
-            document.getElementById('edit_hora_reserva').value = hora;
+            let hora = reserva.hora_reserva;
+            if (hora.includes('T')) hora = hora.split('T')[1];
+            document.getElementById('edit_hora_reserva').value = hora.substring(0, 5);
         }
+
+        // Marcar el radio de la mesa correspondiente
+        document.querySelectorAll('.edit-mesa-radio').forEach(function(radio) {
+            radio.checked = (parseInt(radio.dataset.mesaId) === parseInt(reserva.mesa_id));
+        });
 
         document.getElementById('editReservaModal').classList.remove('hidden');
     }
