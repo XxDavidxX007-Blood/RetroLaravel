@@ -292,25 +292,35 @@
 
                             <!-- Acciones -->
                             <td class="py-4 px-6 text-center">
-                                <div class="flex items-center justify-center gap-1.5">
-                                    <!-- Ver Detalles -->
+                                <div class="flex items-center justify-center gap-2">
+                                    <!-- 1. Ver / Inspeccionar Detalles (Ojo) -->
                                     <button 
                                         type="button"
                                         onclick="openOrderDetailsModal({{ $p->id }})"
-                                        class="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center transition shadow-xs"
+                                        class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition shadow-2xs cursor-pointer"
                                         title="Ver detalles del pedido"
                                     >
                                         <i class="fas fa-eye text-xs"></i>
                                     </button>
 
-                                    <!-- Cambiar Estado -->
+                                    <!-- 2. Editar / Cambiar Estado (Lápiz) -->
                                     <button 
                                         type="button"
                                         onclick="openChangeStatusModal({{ $p->id }}, '{{ $codigo }}', {{ $p->estado_pedido_id }})"
-                                        class="w-8 h-8 rounded-full bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center justify-center transition shadow-xs"
-                                        title="Cambiar estado del pedido"
+                                        class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                        title="Actualizar estado"
                                     >
-                                        <i class="fas fa-ellipsis-vertical text-xs"></i>
+                                        <i class="fas fa-pencil text-xs"></i>
+                                    </button>
+
+                                    <!-- 3. Cancelar / Anular Pedido (Cruz X) -->
+                                    <button 
+                                        type="button"
+                                        onclick="confirmarCancelarPedido({{ $p->id }}, '{{ $codigo }}')"
+                                        class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-rose-100 text-gray-700 hover:text-rose-700 flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                        title="Cancelar pedido"
+                                    >
+                                        <i class="fas fa-xmark text-xs"></i>
                                     </button>
                                 </div>
                             </td>
@@ -580,5 +590,19 @@
     function closeChangeStatusModal() {
         document.getElementById('changeStatusModal').classList.add('hidden');
     }
+
+    function confirmarCancelarPedido(pedidoId, codigo) {
+        if (confirm(`¿Estás seguro de cancelar el pedido ${codigo}? Esta acción devolverá los productos al inventario.`)) {
+            const form = document.getElementById('cancelOrderForm');
+            form.action = `/admin/pedidos/${pedidoId}`;
+            form.submit();
+        }
+    }
 </script>
+
+{{-- Formulario oculto para cancelación de pedidos --}}
+<form id="cancelOrderForm" method="POST" class="hidden">
+    @csrf
+    @method('DELETE')
+</form>
 @endsection

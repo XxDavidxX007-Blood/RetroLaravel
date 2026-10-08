@@ -480,7 +480,7 @@
 
     {{-- Scripts adicionales --}}
 
-    @stack('scripts')
+    @yield('modal')
 
     <script>
         function toggleClientSidebar() {

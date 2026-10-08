@@ -409,10 +409,18 @@
                 <div class="grid grid-cols-4 gap-2 overflow-y-auto pr-1" style="max-height:180px;">
                     @foreach($mesas as $m)
                         @php
-                            $ocupada = $m->estadoMesa && Str::contains(strtolower($m->estadoMesa->nombre_estado ?? ''), 'ocup');
+                            $estadoNombre = strtolower($m->estadoMesa->nombre_estado ?? '');
+                            $ocupada = $m->estadoMesa && (
+                                Str::contains($estadoNombre, 'ocup') ||
+                                Str::contains($estadoNombre, 'reserv') ||
+                                Str::contains($estadoNombre, 'mant')
+                            );
                         @endphp
-                        <label class="cursor-pointer">
-                            <input type="radio" name="mesa_id" value="{{ $m->id }}" required class="sr-only peer" {{ $loop->first ? 'checked' : '' }}>
+                        <label class="{{ $ocupada ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}">
+                            <input type="radio" name="mesa_id" value="{{ $m->id }}"
+                                {{ $ocupada ? 'disabled' : 'required' }}
+                                class="sr-only peer"
+                                {{ ($loop->first && !$ocupada) ? 'checked' : '' }}>
                             <div class="flex flex-col items-center justify-center gap-1 p-2 rounded-xl border-2 text-center transition
                                 {{ $ocupada ? 'border-red-200 bg-red-50 text-red-400' : 'border-gray-200 bg-white text-gray-500 hover:border-gray-400' }}
                                 peer-checked:border-gray-800 peer-checked:bg-gray-100 peer-checked:text-gray-800"
@@ -543,14 +551,19 @@
                 <div class="grid grid-cols-4 gap-2 overflow-y-auto pr-1" style="max-height:180px;">
                     @foreach($mesas as $m)
                         @php
-                            $ocupada = $m->estadoMesa && Str::contains(strtolower($m->estadoMesa->nombre_estado ?? ''), 'ocup');
+                            $estadoNombre = strtolower($m->estadoMesa->nombre_estado ?? '');
+                            $ocupada = $m->estadoMesa && (
+                                Str::contains($estadoNombre, 'ocup') ||
+                                Str::contains($estadoNombre, 'reserv') ||
+                                Str::contains($estadoNombre, 'mant')
+                            );
                         @endphp
-                        <label class="cursor-pointer">
+                        <label class="{{ $ocupada ? 'cursor-not-allowed opacity-60' : 'cursor-pointer' }}">
                             <input
                                 type="radio"
                                 name="mesa_id"
                                 value="{{ $m->id }}"
-                                required
+                                {{ $ocupada ? 'disabled' : 'required' }}
                                 class="sr-only peer edit-mesa-radio"
                                 data-mesa-id="{{ $m->id }}"
                             >

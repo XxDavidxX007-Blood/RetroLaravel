@@ -283,29 +283,37 @@
                                         {{ $estadoNombre }}
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 text-right whitespace-nowrap">
-                                    <div class="inline-flex items-center gap-1.5">
-                                        <!-- Ver Detalles -->
+                                <td class="py-4 px-6 text-center whitespace-nowrap">
+                                    <div class="inline-flex items-center justify-center gap-2">
+                                        <!-- 1. Ver Detalles (Ojo) -->
                                         <button
                                             type="button"
                                             onclick="verDetalles({{ $dom->id }})"
-                                            class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-retro-gold hover:text-white text-gray-600 flex items-center justify-center transition"
-                                            title="Ver detalles"
+                                            class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                            title="Ver detalles del domicilio"
                                         >
                                             <i class="fas fa-eye text-xs"></i>
                                         </button>
 
-                                        <!-- Cambiar Estado -->
-                                        <div class="relative inline-block text-left" x-data="{ open: false }">
-                                            <button
-                                                type="button"
-                                                onclick="openEstadoModal({{ $dom->id }}, {{ $dom->estado_pedido_id }}, '#DOM-{{ str_pad($dom->id, 5, '0', STR_PAD_LEFT) }}')"
-                                                class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-black hover:text-white text-gray-600 flex items-center justify-center transition"
-                                                title="Cambiar estado"
-                                            >
-                                                <i class="fas fa-arrows-rotate text-xs"></i>
-                                            </button>
-                                        </div>
+                                        <!-- 2. Editar Estado (Lápiz) -->
+                                        <button
+                                            type="button"
+                                            onclick="openEstadoModal({{ $dom->id }}, {{ $dom->estado_pedido_id }}, '#ORD-{{ str_pad($dom->id, 5, '0', STR_PAD_LEFT) }}')"
+                                            class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                            title="Actualizar estado"
+                                        >
+                                            <i class="fas fa-pencil text-xs"></i>
+                                        </button>
+
+                                        <!-- 3. Cancelar Domicilio (Cruz X) -->
+                                        <button
+                                            type="button"
+                                            onclick="confirmarCancelarDomicilio({{ $dom->id }}, '#ORD-{{ str_pad($dom->id, 5, '0', STR_PAD_LEFT) }}')"
+                                            class="w-9 h-9 rounded-xl bg-gray-100 hover:bg-rose-100 text-gray-700 hover:text-rose-700 flex items-center justify-center transition shadow-2xs cursor-pointer"
+                                            title="Cancelar domicilio"
+                                        >
+                                            <i class="fas fa-xmark text-xs"></i>
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -888,5 +896,20 @@
         document.getElementById('modalEstado').classList.add('hidden');
         document.getElementById('modalEstado').classList.remove('flex');
     }
+
+    // Confirmar cancelación de domicilio
+    function confirmarCancelarDomicilio(id, codigo) {
+        if (confirm(`¿Estás seguro de cancelar el pedido ${codigo}? Esta acción marcará el domicilio como cancelado y devolverá el stock al inventario.`)) {
+            const form = document.getElementById('formCancelarDomicilio');
+            form.action = `/admin/domicilios/${id}`;
+            form.submit();
+        }
+    }
 </script>
+
+{{-- Formulario oculto para cancelación de domicilios --}}
+<form id="formCancelarDomicilio" method="POST" class="hidden">
+    @csrf
+    @method('DELETE')
+</form>
 @endpush
