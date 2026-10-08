@@ -56,6 +56,7 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/pedidos', [App\Http\Controllers\Admin\PedidoController::class, 'index'])->name('pedidos.index');
     Route::patch('/pedidos/{pedido}/estado', [App\Http\Controllers\Admin\PedidoController::class, 'updateEstado'])->name('pedidos.update-estado');
     Route::get('/pedidos/{pedido}/detalles', [App\Http\Controllers\Admin\PedidoController::class, 'detalles'])->name('pedidos.detalles');
+    Route::delete('/pedidos/{pedido}', [App\Http\Controllers\Admin\PedidoController::class, 'destroy'])->name('pedidos.destroy');
 
     // Reportes
     Route::get('/reportes', [App\Http\Controllers\Admin\ReporteController::class, 'index'])->name('reportes.index');
@@ -88,9 +89,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/catalogo', [ProductoController::class, 'index'])->name('cliente.catalogo');
 
     // Reservas
-    Route::get('/mis-reservas', function () {
-        return view('cliente.reservas');
-    })->name('reservas.cliente');
+    Route::get('/mis-reservas', [App\Http\Controllers\ClienteController::class, 'reservas'])->name('reservas.cliente');
+    Route::post('/mis-reservas', [App\Http\Controllers\ClienteController::class, 'storeReserva'])->name('reservas.cliente.store');
+    Route::put('/mis-reservas/{reserva}', [App\Http\Controllers\ClienteController::class, 'updateReserva'])->name('reservas.cliente.update');
+    Route::delete('/mis-reservas/{reserva}', [App\Http\Controllers\ClienteController::class, 'destroyReserva'])->name('reservas.cliente.destroy');
 
     // Pedidos (Módulo de pedidos en mesa y llevar)
     Route::get('/mis-pedidos', [ClientePedidoController::class, 'indexPedidos'])->name('pedidos.cliente');
